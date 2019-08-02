@@ -1,6 +1,7 @@
 package cn.zhh.crawler.util;
 
 import cn.zhh.crawler.constant.SysConsts;
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -71,18 +72,33 @@ public class HttpClientUtils {
                 .setSocketTimeout(5_000)
                 // 设置是否允许重定向(默认为true)
                 .setRedirectsEnabled(true).build();
-
         // 将上面的配置信息运用到请求里
         httpRequest.setConfig(requestConfig);
+
         // 设置请求头
         if (Objects.nonNull(headers)) {
             headers.forEach(httpRequest::addHeader);
         }
 
+        // 设置代理地址
+//        setProxyAddress();
+
         // 发起请求
-        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+        try (CloseableHttpClient httpClient = HttpClientBuilder.create()
+                .build()) {
             CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
-            return EntityUtils.toString(httpResponse.getEntity(), SysConsts.ENCODING);
+            HttpEntity entity = httpResponse.getEntity();
+            String response = EntityUtils.toString(entity, SysConsts.ENCODING);
+            // 关闭资源
+            EntityUtils.consume(entity);
+            return response;
         }
+    }
+
+    private static void setProxyAddress() {
+        System.setProperty("http.maxRedirects", "50");
+        System.getProperties().setProperty("proxySet", "true");
+        System.getProperties().setProperty("http.proxyHost", "163.204.245.138");
+        System.getProperties().setProperty("http.proxyPort", "9999");
     }
 }

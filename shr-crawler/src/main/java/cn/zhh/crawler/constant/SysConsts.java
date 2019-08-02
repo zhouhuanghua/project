@@ -8,4 +8,6 @@ package cn.zhh.crawler.constant;
 public interface SysConsts {
 
     String ENCODING = "UTF-8";
+
+    String LINE_SEPARATOR = System.lineSeparator();
 }

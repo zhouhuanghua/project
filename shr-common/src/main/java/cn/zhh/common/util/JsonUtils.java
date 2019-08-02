@@ -24,6 +24,10 @@ public class JsonUtils {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    public static ObjectMapper getInstance() {
+        return OBJECT_MAPPER;
+    }
+
     public static String toJson(Object obj) {
         try {
             return OBJECT_MAPPER.writeValueAsString(obj);

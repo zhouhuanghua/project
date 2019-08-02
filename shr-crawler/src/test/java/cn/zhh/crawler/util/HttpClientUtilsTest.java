@@ -9,7 +9,7 @@ public class HttpClientUtilsTest {
 
     @Test
     public void get() throws Exception {
-        String content = HttpClientUtils.get("http://www.baidu.com", null, null);
+        String content = HttpClientUtils.get("https://jobs.zhaopin.com/CC666178323J00154607310.htm", null, null);
         System.out.println(content);
     }
 
