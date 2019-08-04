@@ -1,4 +1,4 @@
-package cn.zhh.crawler;
+package cn.zhh.admin;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,13 +11,13 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  * @author Zhou Huanghua
  */
 @SpringBootApplication
-public class CrawlerApplication extends SpringBootServletInitializer {
+public class AdminApplication extends SpringBootServletInitializer {
     public static void main(String[] args) {
-        SpringApplication.run(CrawlerApplication.class, args);
+        SpringApplication.run(AdminApplication.class, args);
     }
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(CrawlerApplication.class);
+        return builder.sources(AdminApplication.class);
     }
 }

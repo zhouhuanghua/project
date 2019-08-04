@@ -1,5 +1,19 @@
+# 端口，配置为非常用的，避免冲突
+server:
+  port: 9876
 
-
-logging:
-  level:
-    root: info
+spring:
+  # RabbitMQ配置
+  rabbitmq:
+    addresses: thunderclap.cn:5672
+    username: shr
+    password: swun6237
+    virtual-host: my_vhost
+    connection-timeout: 10_000
+    # 消费者配置
+    listener:
+      simple:
+        concurrency: 5
+        max-concurrency: 10
+        acknowledge-mode: manual
+        prefetch: 1

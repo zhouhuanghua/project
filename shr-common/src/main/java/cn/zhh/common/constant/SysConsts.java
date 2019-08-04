@@ -1,11 +1,13 @@
-package cn.zhh.crawler.constant;
+package cn.zhh.common.constant;
 
 /**
- * TODO
+ * 系统常量
  *
  * @author Zhou Huanghua
  */
 public interface SysConsts {
+
+    String DEFAULT_USER_NAME = "SYSTEM";
 
     String ENCODING = "UTF-8";
 

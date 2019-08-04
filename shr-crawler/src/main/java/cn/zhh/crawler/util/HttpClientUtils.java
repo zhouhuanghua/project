@@ -1,6 +1,6 @@
 package cn.zhh.crawler.util;
 
-import cn.zhh.crawler.constant.SysConsts;
+import cn.zhh.common.constant.SysConsts;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;

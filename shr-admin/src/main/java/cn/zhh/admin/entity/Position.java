@@ -1,23 +1,25 @@
-package cn.zhh.common.dto;
+package cn.zhh.admin.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
+import javax.persistence.Entity;
 import java.util.Date;
 
 /**
- * 爬虫系统收集的职位数据
+ * 职位
  *
  * @author Zhou Huanghua
  */
 @Data
-public class PositionInfo implements Serializable {
-
+@EqualsAndHashCode(callSuper = true)
+@Entity(name = "shr_position")
+public class Position extends BaseEntity {
     private String uniqueKey;
 
     private String name;
 
-    private String source;
+    private Byte source;
 
     private String salary;
 
@@ -39,17 +41,5 @@ public class PositionInfo implements Serializable {
 
     private String url;
 
-    private String companyName;
-
-    private String companyLogo;
-
-    private String companyDevelopmentalStage;
-
-    private String companyScale;
-
-    private String companyDomain;
-
-    private String companyUrl;
-
-    private String companyIntroduction;
+    private Long companyId;
 }
