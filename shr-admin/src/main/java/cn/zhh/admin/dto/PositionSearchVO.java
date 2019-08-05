@@ -16,7 +16,7 @@ import java.util.Date;
 public class PositionSearchVO {
 
     @Id
-    private String id;
+    private Long id;
 
     private String uniqueKey;
 

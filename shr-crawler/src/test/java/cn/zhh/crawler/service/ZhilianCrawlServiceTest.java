@@ -19,6 +19,7 @@ public class ZhilianCrawlServiceTest {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
         searchPositionInfoMsg.setContent("java");
         zhilianCrawlService.crawl(searchPositionInfoMsg);
+        Thread.currentThread().join();
     }
 
 }

@@ -64,9 +64,9 @@ public class ZhilianCrawlService {
         handleEveryPage(firstPageResults);
 
         // fixme
-        if (true) {
+        /*if (true) {
             return;
-        }
+        }*/
 
         // 处理第二页之后的结果
         int pageSize = Integer.parseInt(CrawlerConsts.PAGE_SIZE);

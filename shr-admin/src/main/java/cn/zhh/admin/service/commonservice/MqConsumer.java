@@ -1,7 +1,6 @@
 package cn.zhh.admin.service.commonservice;
 
 import cn.zhh.admin.entity.ProxyAddress;
-import cn.zhh.admin.service.domainservice.PositionService;
 import cn.zhh.admin.service.domainservice.ProxyAddressService;
 import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
@@ -29,7 +28,7 @@ import java.util.Map;
 public class MqConsumer {
 
     @Autowired
-    private PositionService positionService;
+    private PositionInfoService positionInfoService;
 
     @Autowired
     private ProxyAddressService proxyAddressService;
@@ -49,9 +48,12 @@ public class MqConsumer {
     ))
     @RabbitHandler
     public void consumePositionInfoMsg(@Payload PositionInfoMsg positionInfoMsg, @Headers Map<String, Object> headers, Channel channel) throws Exception {
+        // fixme
+        if (true) return;
+
         // 处理消息
         log.info("开始消费职位信息，来源：{}，名称：{}", PositionSourceEnum.code2desc(positionInfoMsg.getSource()), positionInfoMsg.getName());
-        positionService.add(positionInfoMsg);
+        positionInfoService.process(positionInfoMsg);
 
         // 手动签收消息
         Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);

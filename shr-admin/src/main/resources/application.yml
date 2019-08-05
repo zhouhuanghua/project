@@ -33,6 +33,8 @@ spring:
         path:
           logs: ./elasticsearch/log
           data: ./elasticsearch/data
+      repositories:
+        enabled: true
     # mongodb
 #    mongodb:
 #      host: thunderclap.cn
