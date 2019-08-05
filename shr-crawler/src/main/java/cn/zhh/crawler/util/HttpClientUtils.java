@@ -62,8 +62,9 @@ public class HttpClientUtils {
     }
 
     private static String request(HttpRequestBase httpRequest, Map<String, String> headers) throws IOException {
-        // 配置信息
-        RequestConfig requestConfig = RequestConfig.custom()
+        // 1、配置信息
+        // 1.1、超时时间
+        RequestConfig.Builder builder = RequestConfig.custom()
                 // 设置连接超时时间(单位毫秒)
                 .setConnectTimeout(5_000)
                 // 设置请求超时时间(单位毫秒)
@@ -71,34 +72,37 @@ public class HttpClientUtils {
                 // socket读写超时时间(单位毫秒)
                 .setSocketTimeout(5_000)
                 // 设置是否允许重定向(默认为true)
-                .setRedirectsEnabled(true).build();
-        // 将上面的配置信息运用到请求里
-        httpRequest.setConfig(requestConfig);
+                .setRedirectsEnabled(true);
+        // 1.2、代理地址
+        /*String proxyAddress = ProxyUtils.randomProxyAddress();
+        if (Objects.nonNull(proxyAddress)) {
+            String[] ipPort = proxyAddress.split(":");
+            builder.setProxy(new HttpHost(ipPort[0], Integer.parseInt(ipPort[1])));
+        }*/
+        // 1.3、将上面的配置信息运用到请求里
+        httpRequest.setConfig(builder.build());
 
-        // 设置请求头
+        // 2、设置请求头
         if (Objects.nonNull(headers)) {
             headers.forEach(httpRequest::addHeader);
         }
 
-        // 设置代理地址
-//        setProxyAddress();
-
-        // 发起请求
+        // 3、发起请求
         try (CloseableHttpClient httpClient = HttpClientBuilder.create()
                 .build()) {
             CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
             HttpEntity entity = httpResponse.getEntity();
             String response = EntityUtils.toString(entity, SysConsts.ENCODING);
-            // 关闭资源
+            // 4、关闭资源
             EntityUtils.consume(entity);
             return response;
         }
     }
 
-    private static void setProxyAddress() {
+    /*private static void setProxyAddress() {
         System.setProperty("http.maxRedirects", "50");
         System.getProperties().setProperty("proxySet", "true");
         System.getProperties().setProperty("http.proxyHost", "163.204.245.138");
         System.getProperties().setProperty("http.proxyPort", "9999");
-    }
+    }*/
 }

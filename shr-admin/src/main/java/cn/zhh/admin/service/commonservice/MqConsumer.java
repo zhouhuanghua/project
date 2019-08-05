@@ -49,7 +49,7 @@ public class MqConsumer {
     @RabbitHandler
     public void consumePositionInfoMsg(@Payload PositionInfoMsg positionInfoMsg, @Headers Map<String, Object> headers, Channel channel) throws Exception {
         // fixme
-        if (true) return;
+//        if (true) return;
 
         // 处理消息
         log.info("开始消费职位信息，来源：{}，名称：{}", PositionSourceEnum.code2desc(positionInfoMsg.getSource()), positionInfoMsg.getName());

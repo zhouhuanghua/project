@@ -12,15 +12,15 @@ spring:
     password: 123456
   # RabbitMQ配置
   rabbitmq:
-    addresses: thunderclap.cn:5672
+    addresses: 139.155.14.94:5672
     username: shr
     password: swun6237
-    virtual-host: my_vhost
+    virtual-host: shr
     connection-timeout: 10_000
     # 消费者配置
     listener:
       simple:
-        concurrency: 5
+        concurrency: 1
         max-concurrency: 10
         acknowledge-mode: manual
         prefetch: 1
@@ -28,11 +28,7 @@ spring:
     # elasticsearch
     elasticsearch:
       cluster-name: docker-cluster
-      cluster-nodes: thunderclap.cn:9300
-      properties:
-        path:
-          logs: ./elasticsearch/log
-          data: ./elasticsearch/data
+      cluster-nodes: 139.155.14.94:9300
       repositories:
         enabled: true
     # mongodb

@@ -17,5 +17,5 @@ public interface CrawlerConsts {
             "Accept", "*/*"
     );
 
-    String PAGE_SIZE = String.valueOf(Runtime.getRuntime().availableProcessors());
+    String PAGE_SIZE = "100";//String.valueOf(Runtime.getRuntime().availableProcessors());
 }

@@ -9,6 +9,7 @@ import cn.zhh.common.util.BusinessException;
 import cn.zhh.crawler.constant.CrawlerConsts;
 import cn.zhh.crawler.util.FunctionUtils;
 import cn.zhh.crawler.util.HttpClientUtils;
+import cn.zhh.crawler.util.ProxyUtils;
 import cn.zhh.crawler.util.ZhilianSearchConditionConvertUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -46,6 +47,7 @@ public class ZhilianCrawlService {
     public void crawl(SearchPositionInfoMsg searchCondition) throws Exception {
         // 执行搜索
         Map<String, String> paramsMap = buildParams(searchCondition);
+        log.info("开始搜索职位，请求参数：{}", paramsMap);
         String rspStr = HttpClientUtils.get(CrawlerConsts.ZHILIAN_SEARCH_URL, paramsMap, CrawlerConsts.HEADER_MAP);
         JSONObject response = JSONObject.parseObject(rspStr);
         if (!Objects.equals(response.getInteger("code"), 200)) {
@@ -55,12 +57,14 @@ public class ZhilianCrawlService {
         // 获取总数
         JSONObject data = response.getJSONObject("data");
         Integer totalCount = data.getInteger("count");
+        log.info("根据条件搜索到{}条职位数据！", totalCount);
         if (Objects.equals(totalCount, 0)) {
             return;
         }
 
         // 处理第一页结果
         JSONArray firstPageResults = data.getJSONArray("results");
+        log.info("开始处理第1页数据...");
         handleEveryPage(firstPageResults);
 
         // fixme
@@ -79,6 +83,7 @@ public class ZhilianCrawlService {
                 throw new BusinessException(ErrorEnum.BAD_REQUEST, "请求响应失败！");
             }
             JSONArray pageResults = response.getJSONObject("data").getJSONArray("results");
+            log.info("开始处理第{}页数据...", index + 1);
             handleEveryPage(pageResults);
         }
     }
@@ -111,7 +116,7 @@ public class ZhilianCrawlService {
     }
 
     private void handleEveryPage(JSONArray pageResults) {
-        pageResults.parallelStream()
+        pageResults.stream()
                 .map(value -> {
                     if (value instanceof JSONObject) {
                         return (JSONObject)value;
@@ -174,6 +179,9 @@ public class ZhilianCrawlService {
     }
 
     private PositionInfoMsg analysisPositionDetail(String positionDetailUrl, PositionInfoMsg positionInfoMsg) throws Exception {
+        // 随机睡眠
+        ProxyUtils.randomSleep();
+
         String htmlPage = HttpClientUtils.get(positionDetailUrl, null, null);
         Document document = Jsoup.parse(htmlPage);
 

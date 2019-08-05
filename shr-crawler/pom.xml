@@ -11,12 +11,12 @@
     </parent>
 
     <artifactId>shr-crawler</artifactId>
+    <packaging>war</packaging>
 
     <dependencies>
         <dependency>
             <groupId>cn.zhh</groupId>
             <artifactId>shr-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
