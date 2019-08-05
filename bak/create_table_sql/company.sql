@@ -13,5 +13,5 @@ CREATE TABLE `shr_company` (
   `last_update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '最后更新时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除：1-是，0否',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `uk_name` (`name`) USING BTREE
+  UNIQUE KEY `uk_name` (`name`,`is_deleted`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公司表';

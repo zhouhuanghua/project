@@ -20,6 +20,6 @@ CREATE TABLE `shr_position` (
   `last_update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '最后更新时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除：1-是，0否',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `uk_unique_key` (`unique_key`,`source`) USING BTREE,
+  UNIQUE KEY `uk_unique_key` (`unique_key`,`source`,`is_deleted`) USING BTREE,
   KEY `idx_name` (`name`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='职位表';
