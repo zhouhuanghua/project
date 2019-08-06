@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 智联爬虫服务
@@ -35,17 +36,11 @@ import java.util.Optional;
  */
 @Component
 @Slf4j
-public class ZhilianCrawlService implements CrawlerService {
+public class ZhilianCrawlService implements CrawlService {
 
     @Autowired
     private MqProducer mqProducer;
 
-    /**
-     * 根据搜索条件爬取职位数据，并推送至MQ
-     *
-     * @param searchCondition 搜索条件
-     * @throws Exception
-     */
     public void crawl(SearchPositionInfoMsg searchCondition) throws Exception {
         // 执行搜索
         Map<String, String> paramsMap = buildParams(searchCondition);
@@ -64,30 +59,10 @@ public class ZhilianCrawlService implements CrawlerService {
             return;
         }
 
-        // 处理第一页结果
-        JSONArray firstPageResults = data.getJSONArray("results");
-        log.info("开始处理第1页数据...");
-        handleEveryPage(firstPageResults);
-
-        // fixme
-        /*if (true) {
-            return;
-        }*/
-
-        // 处理第二页之后的结果
-        int pageSize = Integer.parseInt(CrawlerConsts.PAGE_SIZE);
-        for (int index = 1, start = pageSize; start < totalCount; index++, start = pageSize * index) {
-            // 执行搜索
-            paramsMap.put("start", String.valueOf(start));
-            String rspStr2 = HttpClientUtils.get(CrawlerConsts.ZHILIAN_SEARCH_URL, paramsMap, CrawlerConsts.HEADER_MAP);
-            JSONObject response2 = JSONObject.parseObject(rspStr2);
-            if (!Objects.equals(response2.getInteger("code"), 200)) {
-                throw new BusinessException(ErrorEnum.BAD_REQUEST, "请求响应失败！");
-            }
-            JSONArray pageResults = response.getJSONObject("data").getJSONArray("results");
-            log.info("开始处理第{}页数据...", index + 1);
-            handleEveryPage(pageResults);
-        }
+        // 处理结果
+        JSONArray results = data.getJSONArray("results");
+        log.info("开始处理数据...");
+        handleResults(results);
     }
 
     private Map<String, String> buildParams(SearchPositionInfoMsg searchCondition) {
@@ -102,11 +77,11 @@ public class ZhilianCrawlService implements CrawlerService {
         );
         // 工作经验
         FunctionUtils.runIfNotBlank(searchCondition.getWorkExp(), () ->
-                conditionMap.put("workExperience", ZhilianSearchConditionConvertUtils.getCity(searchCondition.getWorkExp()))
+                conditionMap.put("workExperience", ZhilianSearchConditionConvertUtils.getworkExp(searchCondition.getWorkExp()))
         );
         // 学历
         FunctionUtils.runIfNotBlank(searchCondition.getEducation(), () ->
-                conditionMap.put("education", ZhilianSearchConditionConvertUtils.getCity(searchCondition.getEducation()))
+                conditionMap.put("education", ZhilianSearchConditionConvertUtils.getEducation(searchCondition.getEducation()))
         );
 
         // 2、常规条件
@@ -117,48 +92,49 @@ public class ZhilianCrawlService implements CrawlerService {
         return conditionMap;
     }
 
-    private void handleEveryPage(JSONArray pageResults) {
-        pageResults.stream()
-                .map(value -> {
-                    if (value instanceof JSONObject) {
-                        return (JSONObject)value;
-                    } else {
-                        return value instanceof Map ? new JSONObject((Map)value) : (JSONObject) JSON.toJSON(value);
-                    }
-                })
-                .forEach(result -> {
-                    PositionInfoMsg positionInfoMsg = new PositionInfoMsg();
-                    positionInfoMsg.setUniqueKey(result.getString("number"));
-                    positionInfoMsg.setName(result.getString("jobName"));
-                    positionInfoMsg.setSource(PositionSourceEnum.ZHILIAN.getCode());
-                    positionInfoMsg.setSalary(result.getString("salary"));
-                    positionInfoMsg.setCity(result.getJSONObject("city").getString("display"));
-                    positionInfoMsg.setWorkExp(result.getJSONObject("workingExp").getString("name"));
-                    positionInfoMsg.setEducation(result.getJSONObject("eduLevel").getString("name"));
-                    positionInfoMsg.setWelfare(getWelfare(result.getJSONArray("welfare")));
-                    positionInfoMsg.setLabel(getPositionLabel(result.getJSONObject("positionLabel")));
-                    positionInfoMsg.setPublishTime(result.getDate("updateDate"));
-                    positionInfoMsg.setUrl(result.getString("positionURL"));
-                    JSONObject company = result.getJSONObject("company");
-                    positionInfoMsg.setCompanyName(company.getString("name"));
-                    positionInfoMsg.setCompanyLogo(result.getString("companyLogo"));
-                    positionInfoMsg.setCompanyScale(Optional.ofNullable(company.getJSONObject("size").getString("name")).orElse(""));
+    private void handleResults(JSONArray results) {
+        AtomicInteger index = new AtomicInteger(1);
+        results.stream()
+            .map(value -> {
+                if (value instanceof JSONObject) {
+                    return (JSONObject)value;
+                } else {
+                    return value instanceof Map ? new JSONObject((Map)value) : (JSONObject) JSON.toJSON(value);
+                }
+            })
+            .forEach(result -> {
+                PositionInfoMsg positionInfoMsg = new PositionInfoMsg();
+                positionInfoMsg.setUniqueKey(result.getString("number"));
+                positionInfoMsg.setName(result.getString("jobName"));
+                positionInfoMsg.setSource(PositionSourceEnum.ZHILIAN.getCode());
+                positionInfoMsg.setSalary(result.getString("salary"));
+                positionInfoMsg.setCity(result.getJSONObject("city").getString("display"));
+                positionInfoMsg.setWorkExp(result.getJSONObject("workingExp").getString("name"));
+                positionInfoMsg.setEducation(result.getJSONObject("eduLevel").getString("name"));
+                positionInfoMsg.setWelfare(getWelfare(result.getJSONArray("welfare")));
+                positionInfoMsg.setLabel(getPositionLabel(result.getJSONObject("positionLabel")));
+                positionInfoMsg.setPublishTime(result.getDate("updateDate"));
+                positionInfoMsg.setUrl(result.getString("positionURL"));
+                JSONObject company = result.getJSONObject("company");
+                positionInfoMsg.setCompanyName(company.getString("name"));
+                positionInfoMsg.setCompanyLogo(result.getString("companyLogo"));
+                positionInfoMsg.setCompanyScale(Optional.ofNullable(company.getJSONObject("size").getString("name")).orElse(""));
 
-                    // 从详情页补充数据
-                    try {
-                        analysisPositionDetail(positionInfoMsg.getUrl(), positionInfoMsg);
-                    } catch (Exception e) {
-                        log.error("请求解析职位详情异常！", e);
-                    }
+                // 分析详情页
+                try {
+                    analysisPositionDetail(positionInfoMsg.getUrl(), positionInfoMsg);
+                } catch (Exception e) {
+                    log.error("请求解析职位详情异常！", e);
+                }
 
-                    // 推送MQ
-                    try {
-                        log.info("推送职位到MQ，number={}", positionInfoMsg.getUniqueKey());
-                        mqProducer.sendPositionInfoMsg(positionInfoMsg);
-                    } catch (Exception e) {
-                        log.error("推送职位信息消息到MQ异常！", e);
-                    }
-                });
+                // 推送MQ
+                try {
+                    log.info("推送第{}条职位数据到MQ，number={}", index.getAndIncrement(), positionInfoMsg.getUniqueKey());
+                    mqProducer.sendPositionInfoMsg(positionInfoMsg);
+                } catch (Exception e) {
+                    log.error("推送职位信息消息到MQ异常！", e);
+                }
+            });
     }
 
     private String getWelfare(JSONArray jsonArray) {
@@ -184,12 +160,11 @@ public class ZhilianCrawlService implements CrawlerService {
     private PositionInfoMsg analysisPositionDetail(String positionDetailUrl, PositionInfoMsg positionInfoMsg) throws Exception {
         // 随机睡眠
         ProxyUtils.randomSleep();
-        log.info("开始处理职位详情，URL={}", positionDetailUrl);
 
         // 访问详情页
         String htmlPage = HttpClientUtils.get(positionDetailUrl, null, CrawlerConsts.HEADER_MAP);
 
-        // 处理防爬
+        // 处理反爬
         htmlPage = handlePreventCrawl(htmlPage);
 
         Document document = Jsoup.parse(htmlPage);
@@ -248,8 +223,6 @@ public class ZhilianCrawlService implements CrawlerService {
         FunctionUtils.runIfNonNull(companyIntroductionElement, () -> {
             positionInfoMsg.setCompanyIntroduction(companyIntroductionElement.text());
         });
-
-        log.info("处理职位详情结束，URL={}", positionDetailUrl);
 
         return positionInfoMsg;
     }

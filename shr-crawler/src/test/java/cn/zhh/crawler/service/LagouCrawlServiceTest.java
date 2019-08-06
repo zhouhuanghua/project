@@ -9,16 +9,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-public class ZhilianCrawlServiceTest {
+public class LagouCrawlServiceTest {
 
     @Autowired
-    private ZhilianCrawlService zhilianCrawlService;
+    private LagouCrawlService lagouCrawlService;
 
     @Test
     public void crawl() throws Exception {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
-        searchPositionInfoMsg.setContent("前端工程师");
-        zhilianCrawlService.crawl(searchPositionInfoMsg);
+        searchPositionInfoMsg.setContent("Java");
+        lagouCrawlService.crawl(searchPositionInfoMsg);
         Thread.currentThread().join();
     }
 

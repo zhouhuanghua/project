@@ -7,7 +7,13 @@ import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
  *
  * @author Zhou Huanghua
  */
-public interface CrawlerService {
+public interface CrawlService {
 
+    /**
+     * 根据搜索条件爬取职位数据，并推送至MQ
+     *
+     * @param searchCondition 搜索条件
+     * @throws Exception
+     */
     void crawl(SearchPositionInfoMsg searchCondition) throws Exception;
 }
