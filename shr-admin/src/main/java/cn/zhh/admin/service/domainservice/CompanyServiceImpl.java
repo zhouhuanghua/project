@@ -9,6 +9,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -34,15 +35,19 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Company insert(Company entity) {
-        // 判断是否已经存在，如果存在直接返回原数据
+        // 判断是否已经存在，如果存在则更新，否则插入
         Example<Company> companyExample = buildExample(Company.class,
                 "name", entity.getName(), "isDeleted", IsDeletedEnum.NO.getCode());
         Optional<Company> companyOptional = getByExample(companyExample);
         if (companyOptional.isPresent()) {
-            log.info("公司({})已经存在！", entity.getName());
-            return companyOptional.get();
+            entity.setId(companyOptional.get().getId());
         }
-        // 插入数据库
+        // 长度截取
+        String introduction = entity.getIntroduction();
+        if (StringUtils.hasText(introduction) && introduction.length() > 8000) {
+            entity.setIntroduction(introduction.substring(0, 7800) + "......更多详情请查看公司官网。");
+        }
+
         return save(entity);
     }
 }

@@ -74,6 +74,7 @@ public interface BaseService<T extends BaseEntity, ID> {
     }
 
     default T save(T entity) {
+        entity.setDefaultValue();
         return dao().save(entity);
     }
 

@@ -8,7 +8,7 @@ CREATE TABLE `shr_position` (
   `work_exp` varchar(16) NOT NULL DEFAULT '' COMMENT '工作经验',
   `education` varchar(16) NOT NULL DEFAULT '' COMMENT '学历',
   `welfare` varchar(128) NOT NULL DEFAULT '' COMMENT '福利',
-  `description` varchar(3000) NOT NULL DEFAULT '' COMMENT '描述',
+  `description` varchar(5000) NOT NULL DEFAULT '' COMMENT '描述',
   `label` varchar(128) NOT NULL DEFAULT '' COMMENT '标签',
   `work_address` varchar(256) NOT NULL DEFAULT '' COMMENT '工作地址',
   `publish_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
@@ -22,4 +22,4 @@ CREATE TABLE `shr_position` (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `uk_unique_key` (`unique_key`,`source`,`is_deleted`) USING BTREE,
   KEY `idx_name` (`name`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='职位表';
+) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8mb4 COMMENT='职位表';

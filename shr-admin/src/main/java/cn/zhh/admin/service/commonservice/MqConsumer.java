@@ -58,6 +58,7 @@ public class MqConsumer {
         // 手动签收消息
         Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
         channel.basicAck(deliveryTag, false);
+        log.info("职位信息消费成功，来源：{}，名称：{}", PositionSourceEnum.code2desc(positionInfoMsg.getSource()), positionInfoMsg.getName());
     }
 
     /**

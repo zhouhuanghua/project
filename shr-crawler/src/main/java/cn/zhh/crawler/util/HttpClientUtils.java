@@ -3,7 +3,6 @@ package cn.zhh.crawler.util;
 import cn.zhh.common.constant.SysConsts;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -17,6 +16,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -62,47 +62,36 @@ public class HttpClientUtils {
     }
 
     private static String request(HttpRequestBase httpRequest, Map<String, String> headers) throws IOException {
-        // 1、配置信息
-        // 1.1、超时时间
-        RequestConfig.Builder builder = RequestConfig.custom()
-                // 设置连接超时时间(单位毫秒)
-                .setConnectTimeout(5_000)
-                // 设置请求超时时间(单位毫秒)
-                .setConnectionRequestTimeout(5_000)
-                // socket读写超时时间(单位毫秒)
-                .setSocketTimeout(5_000)
-                // 设置是否允许重定向(默认为true)
-                .setRedirectsEnabled(true);
-        // 1.2、代理地址
-        /*String proxyAddress = ProxyUtils.randomProxyAddress();
-        if (Objects.nonNull(proxyAddress)) {
-            String[] ipPort = proxyAddress.split(":");
-            builder.setProxy(new HttpHost(ipPort[0], Integer.parseInt(ipPort[1])));
-        }*/
-        // 1.3、将上面的配置信息运用到请求里
-        httpRequest.setConfig(builder.build());
-
-        // 2、设置请求头
+        // 设置请求头
         if (Objects.nonNull(headers)) {
             headers.forEach(httpRequest::addHeader);
         }
 
-        // 3、发起请求
+        // 设置代理地址
+        setProxy();
+
+        //  发起请求
         try (CloseableHttpClient httpClient = HttpClientBuilder.create()
                 .build()) {
             CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
             HttpEntity entity = httpResponse.getEntity();
             String response = EntityUtils.toString(entity, SysConsts.ENCODING);
-            // 4、关闭资源
+            // 关闭资源
             EntityUtils.consume(entity);
             return response;
         }
     }
 
-    /*private static void setProxyAddress() {
-        System.setProperty("http.maxRedirects", "50");
-        System.getProperties().setProperty("proxySet", "true");
-        System.getProperties().setProperty("http.proxyHost", "163.204.245.138");
-        System.getProperties().setProperty("http.proxyPort", "9999");
-    }*/
+    private static void setProxy() {
+        String proxyAddress = ProxyUtils.randomProxyAddress();
+        if (StringUtils.hasText(proxyAddress) && proxyAddress.contains(":")) {
+            String[] ipPort = proxyAddress.split(":");
+            String ip = ipPort[0];
+            String port = ipPort[1];
+            System.setProperty("http.maxRedirects", "50");
+            System.getProperties().setProperty("proxySet", "true");
+            System.getProperties().setProperty("http.proxyHost", ip);
+            System.getProperties().setProperty("http.proxyPort", port);
+        }
+    }
 }

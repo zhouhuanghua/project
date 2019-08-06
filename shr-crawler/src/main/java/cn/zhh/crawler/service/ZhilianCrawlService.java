@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptableObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +35,7 @@ import java.util.Optional;
  */
 @Component
 @Slf4j
-public class ZhilianCrawlService {
+public class ZhilianCrawlService implements CrawlerService {
 
     @Autowired
     private MqProducer mqProducer;
@@ -89,7 +91,7 @@ public class ZhilianCrawlService {
     }
 
     private Map<String, String> buildParams(SearchPositionInfoMsg searchCondition) {
-        Map<String, String> conditionMap = new HashMap<>();
+        Map<String, String> conditionMap = new HashMap<>(16);
 
         // 1、搜索条件
         // 关键字
@@ -151,6 +153,7 @@ public class ZhilianCrawlService {
 
                     // 推送MQ
                     try {
+                        log.info("推送职位到MQ，number={}", positionInfoMsg.getUniqueKey());
                         mqProducer.sendPositionInfoMsg(positionInfoMsg);
                     } catch (Exception e) {
                         log.error("推送职位信息消息到MQ异常！", e);
@@ -181,8 +184,14 @@ public class ZhilianCrawlService {
     private PositionInfoMsg analysisPositionDetail(String positionDetailUrl, PositionInfoMsg positionInfoMsg) throws Exception {
         // 随机睡眠
         ProxyUtils.randomSleep();
+        log.info("开始处理职位详情，URL={}", positionDetailUrl);
 
-        String htmlPage = HttpClientUtils.get(positionDetailUrl, null, null);
+        // 访问详情页
+        String htmlPage = HttpClientUtils.get(positionDetailUrl, null, CrawlerConsts.HEADER_MAP);
+
+        // 处理防爬
+        htmlPage = handlePreventCrawl(htmlPage);
+
         Document document = Jsoup.parse(htmlPage);
 
     // start---------职位描述
@@ -240,6 +249,27 @@ public class ZhilianCrawlService {
             positionInfoMsg.setCompanyIntroduction(companyIntroductionElement.text());
         });
 
+        log.info("处理职位详情结束，URL={}", positionDetailUrl);
+
         return positionInfoMsg;
+    }
+
+    private String handlePreventCrawl(String htmlPage) {
+        // 不包含指定内容的话，就是正常的网页
+        if (!htmlPage.contains("为保证您的正常访问，请进行如下验证")) {
+            return htmlPage;
+        }
+
+        Document document = Jsoup.parse(htmlPage);
+        Element scriptElement = document.getElementsByTag("script").last();
+        System.out.println(scriptElement.html());
+
+
+        Context context = Context.enter();
+        ScriptableObject scriptableObject = context.initStandardObjects();
+        context.evaluateString(scriptableObject, "", "", 1, null);
+        Object var = scriptableObject.get("", scriptableObject);
+
+        return htmlPage;
     }
 }

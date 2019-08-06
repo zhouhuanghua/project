@@ -17,7 +17,7 @@ public class ZhilianCrawlServiceTest {
     @Test
     public void crawl() throws Exception {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
-        searchPositionInfoMsg.setContent("java");
+        searchPositionInfoMsg.setContent("PHP");
         zhilianCrawlService.crawl(searchPositionInfoMsg);
         Thread.currentThread().join();
     }

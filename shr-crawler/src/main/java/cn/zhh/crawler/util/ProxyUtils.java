@@ -44,7 +44,7 @@ public class ProxyUtils {
 
     public static void randomSleep() {
         try {
-            TimeUnit.MINUTES.sleep((long)Math.random() * 10);
+            TimeUnit.MILLISECONDS.sleep(RANDOM.nextInt(3_000));
         } catch (InterruptedException e) {
             log.warn("随意睡眠异常！", e);
         }
