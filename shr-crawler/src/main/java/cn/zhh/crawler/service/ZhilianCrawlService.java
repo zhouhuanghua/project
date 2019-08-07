@@ -8,8 +8,8 @@ import cn.zhh.common.enums.PositionSourceEnum;
 import cn.zhh.common.util.BusinessException;
 import cn.zhh.crawler.constant.CrawlerConsts;
 import cn.zhh.crawler.util.FunctionUtils;
-import cn.zhh.crawler.util.HttpClientUtils;
 import cn.zhh.crawler.util.ProxyUtils;
+import cn.zhh.crawler.util.Request;
 import cn.zhh.crawler.util.ZhilianSearchConditionConvertUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -18,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ScriptableObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,11 +39,15 @@ public class ZhilianCrawlService implements CrawlService {
     @Autowired
     private MqProducer mqProducer;
 
+    @Override
     public void crawl(SearchPositionInfoMsg searchCondition) throws Exception {
         // 执行搜索
         Map<String, String> paramsMap = buildParams(searchCondition);
         log.info("开始搜索职位，请求参数：{}", paramsMap);
-        String rspStr = HttpClientUtils.get(CrawlerConsts.ZHILIAN_SEARCH_URL, paramsMap, CrawlerConsts.HEADER_MAP);
+        String rspStr = Request.builder().urlNonParams(CrawlerConsts.ZHILIAN_SEARCH_URL).addQueryStringParameters(paramsMap)
+//            .addHeaders(CrawlerConsts.HEADER_MAP)
+            .build()
+            .getByHttpClient();
         JSONObject response = JSONObject.parseObject(rspStr);
         if (!Objects.equals(response.getInteger("code"), 200)) {
             throw new BusinessException(ErrorEnum.BAD_REQUEST, "请求响应失败！");
@@ -162,7 +164,7 @@ public class ZhilianCrawlService implements CrawlService {
         ProxyUtils.randomSleep();
 
         // 访问详情页
-        String htmlPage = HttpClientUtils.get(positionDetailUrl, null, CrawlerConsts.HEADER_MAP);
+        String htmlPage = Request.builder().urlNonParams(positionDetailUrl).addHeaders(CrawlerConsts.HEADER_MAP).build().getByHttpClient();
 
         // 处理反爬
         htmlPage = handlePreventCrawl(htmlPage);
@@ -236,12 +238,6 @@ public class ZhilianCrawlService implements CrawlService {
         Document document = Jsoup.parse(htmlPage);
         Element scriptElement = document.getElementsByTag("script").last();
         System.out.println(scriptElement.html());
-
-
-        Context context = Context.enter();
-        ScriptableObject scriptableObject = context.initStandardObjects();
-        context.evaluateString(scriptableObject, "", "", 1, null);
-        Object var = scriptableObject.get("", scriptableObject);
 
         return htmlPage;
     }
