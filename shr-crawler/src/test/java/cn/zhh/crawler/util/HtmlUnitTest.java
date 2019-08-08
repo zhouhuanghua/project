@@ -6,8 +6,6 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -19,15 +17,11 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Zhou Huanghua
  */
-public class SeleniumTest {
+public class HtmlUnitTest {
 
     @Test
-    public void test() {
-        WebDriver webDriver = new HtmlUnitDriver();
-        webDriver.get("https://www.lagou.com/");
-        webDriver.findElement(By.id("search_input")).sendKeys("Java");
-        webDriver.findElement(By.id("search_button")).click();
-        System.out.println(webDriver.getPageSource());
+    public void test() throws IOException {
+
     }
 
     @Test
@@ -37,8 +31,7 @@ public class SeleniumTest {
 
         // 创建一个驱动对象
         WebDriver driver = new ChromeDriver();
-//        HtmlUnitDriver driver = new HtmlUnitDriver(BrowserVersion.getDefault());
-//        driver.setJavascriptEnabled(true);
+        driver.setJavascriptEnabled(true);
 
         // 窗口最大化
         driver.manage().window().maximize();
