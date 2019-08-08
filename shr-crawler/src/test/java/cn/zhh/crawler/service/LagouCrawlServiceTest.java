@@ -17,7 +17,7 @@ public class LagouCrawlServiceTest {
     @Test
     public void crawl() throws Exception {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
-        searchPositionInfoMsg.setContent("Java");
+        searchPositionInfoMsg.setContent("算法");
         lagouCrawlService.crawl(searchPositionInfoMsg);
         Thread.currentThread().join();
     }

@@ -17,8 +17,7 @@ public interface CrawlerConsts {
 
     Map<String, String> HEADER_MAP = MapUtils.buildMap("Origin", "https://sou.zhaopin.com",
             "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36",
-            "Accept", "application/json, text/plain, */*", "Cookie", "token",
-            "", "");
+            "Accept", "application/json, text/plain, */*", "Cookie", "token");
 
     String PAGE_SIZE = "250";
 }

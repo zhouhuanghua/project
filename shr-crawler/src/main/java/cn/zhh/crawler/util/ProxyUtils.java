@@ -25,7 +25,7 @@ public class ProxyUtils {
     static {
         // 加载IP地址
         try {
-            File file = ResourceUtils.getFile("classpath:ProxyAddress.txt");
+            File file = ResourceUtils.getFile("classpath:static/ProxyAddress.txt");
             proxyAddressList = Files.readAllLines(file.toPath());
         } catch (IOException e) {
             log.error("加载代理地址文件异常！", e);

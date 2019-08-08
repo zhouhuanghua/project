@@ -29,7 +29,7 @@ public class ProxyAddressService {
 
     private final CopyOnWriteArrayList<String> proxyAddressList ;
     private final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
-    private final String FILE_PATH = "classpath:ProxyAddress.txt";
+    private final String FILE_PATH = "classpath:static/ProxyAddress.txt";
 
     public ProxyAddressService() {
         proxyAddressList = new CopyOnWriteArrayList<>();

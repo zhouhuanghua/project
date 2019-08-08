@@ -3,7 +3,7 @@ CREATE TABLE `shr_company` (
   `name` varchar(128) NOT NULL DEFAULT '' COMMENT '名称',
   `logo` varchar(256) NOT NULL DEFAULT '' COMMENT 'logo链接',
   `developmental_stage` varchar(128) NOT NULL DEFAULT '' COMMENT '发展阶段',
-  `scale` varchar(32) NOT NULL DEFAULT '' COMMENT '规模',
+  `scale` varchar(256) NOT NULL DEFAULT '' COMMENT '规模',
   `domain` varchar(128) NOT NULL DEFAULT '' COMMENT '主营',
   `url` varchar(256) NOT NULL DEFAULT '' COMMENT '主页链接',
   `introduction` varchar(8000) NOT NULL DEFAULT '' COMMENT '简介',

@@ -6,8 +6,7 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Zhou Huanghua
  */
-public class HtmlUnitTest {
+public class SeleniumTest {
 
     @Test
     public void test() throws IOException {
@@ -26,12 +25,11 @@ public class HtmlUnitTest {
 
     @Test
     public void test2() {
-        // 设置驱动位置
+        // 设置驱动位置(真实浏览器)
         System.setProperty("webdriver.chrome.driver", "src/main/resources/static/chromedriver.exe");
 
         // 创建一个驱动对象
         WebDriver driver = new ChromeDriver();
-        driver.setJavascriptEnabled(true);
 
         // 窗口最大化
         driver.manage().window().maximize();
@@ -63,16 +61,6 @@ public class HtmlUnitTest {
                 }
                 return;
             });
-
-
-        new WebDriverWait(driver,5,1_000)
-                .until(new ExpectedCondition<WebElement>(){
-                    @Override
-                    public WebElement apply(WebDriver text) {
-                        return text.findElement(By.className("pager_next"));
-                    }
-        }).click();
-
 
     }
 }

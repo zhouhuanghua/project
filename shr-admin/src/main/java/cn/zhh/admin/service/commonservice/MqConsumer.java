@@ -48,17 +48,20 @@ public class MqConsumer {
     ))
     @RabbitHandler
     public void consumePositionInfoMsg(@Payload PositionInfoMsg positionInfoMsg, @Headers Map<String, Object> headers, Channel channel) throws Exception {
-        // fixme
-//        if (true) return;
-
         // 处理消息
-        log.info("开始消费职位信息，来源：{}，名称：{}", PositionSourceEnum.code2desc(positionInfoMsg.getSource()), positionInfoMsg.getName());
-        positionInfoService.process(positionInfoMsg);
+        String source = PositionSourceEnum.code2desc(positionInfoMsg.getSource());
+        String name = positionInfoMsg.getName();
+        log.info("开始消费职位信息，来源：{}，名称：{}", source, name);
+        try {
+            positionInfoService.process(positionInfoMsg);
+            log.info("职位信息，来源：{}，名称：{} 消费成功！", source, name);
+        } catch (Exception e) {
+            log.info("职位信息，来源：{}，名称：{} 消费失败！", source, name);
+        }
 
         // 手动签收消息
         Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
         channel.basicAck(deliveryTag, false);
-        log.info("职位信息消费成功，来源：{}，名称：{}", PositionSourceEnum.code2desc(positionInfoMsg.getSource()), positionInfoMsg.getName());
     }
 
     /**
