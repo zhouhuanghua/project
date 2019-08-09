@@ -1,7 +1,7 @@
 package cn.zhh.crawler.service;
 
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
-import cn.zhh.crawler.service.crawl.ZhilianCrawlService;
+import cn.zhh.crawler.service.crawl.BossCrawlService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,17 +10,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-public class ZhilianCrawlServiceTest {
+public class BossCrawlServiceTest {
 
     @Autowired
-    private ZhilianCrawlService zhilianCrawlService;
+    private BossCrawlService bossCrawlService;
 
     @Test
     public void crawl() throws Exception {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
-        searchPositionInfoMsg.setContent("大数据");
-        zhilianCrawlService.crawl(searchPositionInfoMsg);
-        Thread.currentThread().join();
+        searchPositionInfoMsg.setContent("Java");
+        bossCrawlService.crawl(searchPositionInfoMsg);
     }
 
 }

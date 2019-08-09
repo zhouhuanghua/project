@@ -30,11 +30,7 @@ import java.util.*;
  */
 public class Request {
 
-    private Request() {
-        headerMap = new LinkedHashMap<>();
-        queryStringParameterMap = new LinkedHashMap<>();
-        formDataMap = new LinkedHashMap<>();
-    }
+    private Request() {}
 
     private String url;
 
@@ -48,66 +44,90 @@ public class Request {
 
     private String proxyPort;
 
+    @Deprecated private int retryCount;
+
     public static Builder builder() {
         return new Builder(new Request());
     }
 
     public static class Builder {
-        private Request request;
+        private String url;
+        private Map<String, String> headerMap;
+        private Map<String, String> queryStringParameterMap;
+        private Map<String, String> formDataMap;
+        private String proxyIp;
+        private String proxyPort;
+        @Deprecated private int retryCount;
 
         private Builder(Request request) {
-            this.request = request;
+            headerMap = new LinkedHashMap<>();
+            queryStringParameterMap = new LinkedHashMap<>();
+            formDataMap = new LinkedHashMap<>();
         }
 
         public Builder urlNonParams(String urlNonParams) {
-            request.url = urlNonParams;
+            this.url = urlNonParams;
             return this;
         }
 
         public Builder addHeader(String name, String value) {
-            request.headerMap.put(name, value);
+            this.headerMap.put(name, value);
             return this;
         }
 
         public Builder addHeaders(Map<String, String> headerMap) {
-            request.headerMap.putAll(headerMap);
+            this.headerMap.putAll(headerMap);
             return this;
         }
 
         public Builder addQueryStringParameter(String name, String value) {
-            request.queryStringParameterMap.put(name, value);
+            this.queryStringParameterMap.put(name, value);
             return this;
         }
 
         public Builder addQueryStringParameters(Map<String, String> queryStringParameterMap) {
-            request.queryStringParameterMap.putAll(queryStringParameterMap);
+            this.queryStringParameterMap.putAll(queryStringParameterMap);
             return this;
         }
 
         public Builder addFormData(String name, String value) {
-            request.formDataMap.put(name, value);
+            this.formDataMap.put(name, value);
             return this;
         }
 
         public Builder addFormDatas(Map<String, String> formDataMap) {
-            request.formDataMap.putAll(formDataMap);
+            this.formDataMap.putAll(formDataMap);
             return this;
         }
 
         public Builder proxy(String proxyIp, int proxyPort) {
-            request.proxyIp = proxyIp;
-            request.proxyPort = String.valueOf(proxyPort);
+            this.proxyIp = proxyIp;
+            this.proxyPort = String.valueOf(proxyPort);
             return this;
         }
 
         public Builder proxy(String proxy) {
             String[] split = proxy.split(":");
-            request.proxyIp = split[0];
-            request.proxyPort = split[1];
+            this.proxyIp = split[0];
+            this.proxyPort = split[1];
+            return this;
+        }
+
+        @Deprecated
+        public Builder retryCount(int count) {
+            this.retryCount = count;
             return this;
         }
 
         public Request build() {
+            Request request = new Request();
+            request.url = this.url;
+            request.headerMap = this.headerMap;
+            request.queryStringParameterMap = this.queryStringParameterMap;
+            request.formDataMap = this.formDataMap;
+            request.proxyIp = this.proxyIp;
+            request.proxyPort = this.proxyPort;
+            request.retryCount = this.retryCount;
             return request;
         }
     }

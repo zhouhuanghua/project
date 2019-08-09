@@ -8,14 +8,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-public class ProxyAddressServiceTest {
+public class ProxyServiceTest {
 
     @Autowired
-    private ProxyAddressService proxyAddressService;
+    private ProxyService proxyService;
 
     @Test
     public void cralw() throws Exception {
-        proxyAddressService.cralw(1);
+        proxyService.crawl();
+
     }
 
     @Test

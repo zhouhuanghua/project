@@ -1,6 +1,7 @@
 package cn.zhh.crawler.service;
 
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
+import cn.zhh.crawler.service.crawl.LagouCrawlService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class LagouCrawlServiceTest {
     @Test
     public void crawl() throws Exception {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
-        searchPositionInfoMsg.setContent("算法");
+        searchPositionInfoMsg.setContent("C#");
         lagouCrawlService.crawl(searchPositionInfoMsg);
         Thread.currentThread().join();
     }

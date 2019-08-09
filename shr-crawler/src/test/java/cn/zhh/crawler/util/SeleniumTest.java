@@ -20,7 +20,8 @@ public class SeleniumTest {
 
     @Test
     public void test() throws IOException {
-
+        int i = 5;
+        System.out.println(++i < 6);
     }
 
     @Test

@@ -1,13 +1,15 @@
-package cn.zhh.crawler.service;
+package cn.zhh.crawler.service.crawl;
 
+import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
 import cn.zhh.common.enums.PositionSourceEnum;
-import cn.zhh.crawler.constant.CrawlerConsts;
-import cn.zhh.crawler.util.FunctionUtils;
-import cn.zhh.crawler.util.ProxyUtils;
+import cn.zhh.crawler.service.MqProducer;
+import cn.zhh.crawler.service.ProxyService;
+import cn.zhh.crawler.util.OptionalOperationUtils;
 import cn.zhh.crawler.util.Request;
+import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,11 +19,16 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.springframework.amqp.rabbit.annotation.*;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.Headers;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -33,16 +40,17 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 public class LagouCrawlService implements CrawlService {
-
     @Autowired
     private MqProducer mqProducer;
     @Autowired
-    private ProxyAddressService proxyAddressService;
+    private ProxyService proxyService;
+    private final String DRIVER_PATH = "src/main/resources/static/chromedriver.exe";
+    private final String BASE_URL = "https://www.lagou.com/";
 
     @Override
     public void crawl(SearchPositionInfoMsg searchCondition) throws Exception {
         // 创建驱动，并设置页面加载超时时间和元素定位超时时间
-        System.setProperty("webdriver.chrome.driver", "src/main/resources/static/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", DRIVER_PATH);
         WebDriver driver = new ChromeDriver();
         driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
@@ -50,8 +58,8 @@ public class LagouCrawlService implements CrawlService {
         driver.manage().window().maximize();
         // 打开网页
         log.info("开始打开网页...");
-        driver.navigate().to("https://www.lagou.com/");
-        sleep(5, TimeUnit.SECONDS);
+        driver.navigate().to(BASE_URL);
+        proxyService.sleep(5, TimeUnit.SECONDS);
         // 选择城市
         log.info("开始选择城市...");
         selectCity(driver, searchCondition.getCity());
@@ -66,30 +74,49 @@ public class LagouCrawlService implements CrawlService {
         // 选择公司发展阶段 todo
         log.info("开始选择公司发展阶段...");
         // 选择最新排序方式
-        FunctionUtils.consumeIfNonNull(driver.findElement(By.id("order")), orderElement -> {
+        OptionalOperationUtils.consumeIfNonNull(driver.findElement(By.id("order")), orderElement -> {
             log.info("按发布时间排序...");
             orderElement.findElement(By.cssSelector("li[class=wrapper]"))
                     .findElement(By.tagName("div")).findElements(By.tagName("a")).get(1).click();
         });
 
-        sleep(5, TimeUnit.SECONDS);
+        proxyService.sleep(5, TimeUnit.SECONDS);
         // 处理第一页
         int pageNum = 1;
         handleEveryPage(driver, pageNum);
         // 下一页(暂时爬取5页)
-        for (; pageNum < 6; ++pageNum) {
+        for (; ++pageNum < 6; ) {
             WebElement pagerNextElement = driver.findElement(By.className("pager_next"));
             if (Objects.isNull(pagerNextElement)) {
                 return;
             }
             // 点击下一页，等待5秒后开始处理页面
             pagerNextElement.click();
-            sleep(5, TimeUnit.SECONDS);
+            proxyService.sleep(5, TimeUnit.SECONDS);
             handleEveryPage(driver, pageNum);
         }
 
         // 关闭
-        FunctionUtils.consumeIfNonNull(driver, WebDriver::quit);
+        OptionalOperationUtils.consumeIfNonNull(driver, WebDriver::quit);
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = MqConsts.SEARCH_POSITION_INFO_LAGOU_QUEUE_NAME, durable = "true"),
+            exchange = @Exchange(name = MqConsts.SEARCH_POSITION_INFO_TOPIC_EXCHANGE_NAME, type = "topic"),
+            key = ""
+    ))
+    @RabbitHandler
+    @Override
+    public void consumeMq(@Payload SearchPositionInfoMsg searchCondition, @Headers Map<String, Object> headers, Channel channel) throws Exception {
+        try {
+            crawl(searchCondition);
+        } catch (Exception e) {
+            log.error("拉勾消费职位搜索消息异常！", e);
+        }
+
+        // 手动签收消息
+        Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
+        channel.basicAck(deliveryTag, false);
     }
 
     private void handleEveryPage(WebDriver driver, int pageNum) {
@@ -126,22 +153,22 @@ public class LagouCrawlService implements CrawlService {
             }
 
             log.info("第{}页第{}条职位信息处理成功！", pageNum ,i+1);
-            ProxyUtils.randomSleep();
+            proxyService.defaultRandomSleep();
         }
     }
 
     private void analysisPositionDetail(String positionDetailUrl, PositionInfoMsg positionInfoMsg) throws Exception {
         // 抓取网页内容
-        Request.Builder builder = Request.builder().urlNonParams(positionDetailUrl).addHeaders(CrawlerConsts.HEADER_MAP);
-        Document document = Jsoup.parse(builder.proxy(proxyAddressService.randomProxyAddress()).build().getByJsoup());
+        Request.Builder builder = Request.builder().urlNonParams(positionDetailUrl).addHeaders(proxyService.getCommonHeaderMap(BASE_URL));
+        Document document = Jsoup.parse(builder.proxy(proxyService.getRandomProxyAddress()).build().getByJsoup());
         Element nameElement = null;
         for (int timeout = 30; Objects.isNull(nameElement = document.selectFirst("div[class=job-name]")); timeout+=5) {
             if (timeout > 60) {
                 throw new RuntimeException("无法加载页面：" + SysConsts.LINE_SEPARATOR + document.html());
             }
             log.info("睡眠{}秒进行等待...", timeout);
-            sleep(timeout, TimeUnit.SECONDS);
-            document = Jsoup.parse(builder.proxy(proxyAddressService.randomProxyAddress()).build().getByJsoup());
+            proxyService.sleep(timeout, TimeUnit.SECONDS);
+            document = Jsoup.parse(builder.proxy(proxyService.getRandomProxyAddress()).build().getByJsoup());
         }
 
         // 职位名称
@@ -221,13 +248,5 @@ public class LagouCrawlService implements CrawlService {
         }
         // 没有匹配的，选择全国
         driver.findElement(By.id("changeCityBox")).findElement(By.cssSelector("p[class=checkTips]")).findElement(By.tagName("a")).click();
-    }
-
-    private void sleep(long timeout, TimeUnit timeUnit) {
-        try {
-            timeUnit.sleep(timeout);
-        } catch (InterruptedException e) {
-            log.error("睡眠异常！", e);
-        }
     }
 }

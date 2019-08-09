@@ -1,24 +1,30 @@
-package cn.zhh.crawler.service;
+package cn.zhh.crawler.service.crawl;
 
+import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
 import cn.zhh.common.enums.ErrorEnum;
 import cn.zhh.common.enums.PositionSourceEnum;
 import cn.zhh.common.util.BusinessException;
-import cn.zhh.crawler.constant.CrawlerConsts;
-import cn.zhh.crawler.util.FunctionUtils;
-import cn.zhh.crawler.util.ProxyUtils;
+import cn.zhh.crawler.service.MqProducer;
+import cn.zhh.crawler.service.ProxyService;
+import cn.zhh.crawler.util.OptionalOperationUtils;
 import cn.zhh.crawler.util.Request;
 import cn.zhh.crawler.util.ZhilianSearchConditionConvertUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.amqp.rabbit.annotation.*;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.Headers;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -35,17 +41,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @Slf4j
 public class ZhilianCrawlService implements CrawlService {
-
     @Autowired
     private MqProducer mqProducer;
+    @Autowired
+    private ProxyService proxyService;
+    private final String SEARCH_URL = "https://fe-api.zhaopin.com/c/i/sou";
+    private final String PAGE_SIZE = "100";
 
     @Override
     public void crawl(SearchPositionInfoMsg searchCondition) throws Exception {
         // 执行搜索
         Map<String, String> paramsMap = buildParams(searchCondition);
         log.info("开始搜索职位，请求参数：{}", paramsMap);
-        String rspStr = Request.builder().urlNonParams(CrawlerConsts.ZHILIAN_SEARCH_URL).addQueryStringParameters(paramsMap)
-//            .addHeaders(CrawlerConsts.HEADER_MAP)
+        String rspStr = Request.builder().urlNonParams(SEARCH_URL).addQueryStringParameters(paramsMap)
+            .addHeaders(proxyService.getCommonHeaderMap(SEARCH_URL))
             .build()
             .getByHttpClient();
         JSONObject response = JSONObject.parseObject(rspStr);
@@ -67,6 +76,25 @@ public class ZhilianCrawlService implements CrawlService {
         handleResults(results);
     }
 
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = MqConsts.SEARCH_POSITION_INFO_ZHILIAN_QUEUE_NAME, durable = "true"),
+            exchange = @Exchange(name = MqConsts.SEARCH_POSITION_INFO_TOPIC_EXCHANGE_NAME, type = "topic"),
+            key = ""
+    ))
+    @RabbitHandler
+    @Override
+    public void consumeMq(@Payload SearchPositionInfoMsg searchCondition, @Headers Map<String, Object> headers, Channel channel) throws Exception {
+        try {
+            crawl(searchCondition);
+        } catch (Exception e) {
+            log.error("智联消费职位搜索消息异常！", e);
+        }
+
+        // 手动签收消息
+        Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
+        channel.basicAck(deliveryTag, false);
+    }
+
     private Map<String, String> buildParams(SearchPositionInfoMsg searchCondition) {
         Map<String, String> conditionMap = new HashMap<>(16);
 
@@ -74,20 +102,20 @@ public class ZhilianCrawlService implements CrawlService {
         // 关键字
         conditionMap.put("kw", searchCondition.getContent());
         // 城市
-        FunctionUtils.runIfNotBlank(searchCondition.getCity(), () ->
-                conditionMap.put("cityId", ZhilianSearchConditionConvertUtils.getCity(searchCondition.getCity()))
+        OptionalOperationUtils.consumeIfNotBlank(searchCondition.getCity(), city ->
+                conditionMap.put("cityId", ZhilianSearchConditionConvertUtils.getCity(city))
         );
         // 工作经验
-        FunctionUtils.runIfNotBlank(searchCondition.getWorkExp(), () ->
-                conditionMap.put("workExperience", ZhilianSearchConditionConvertUtils.getworkExp(searchCondition.getWorkExp()))
+        OptionalOperationUtils.consumeIfNotBlank(searchCondition.getWorkExp(), workExp ->
+                conditionMap.put("workExperience", ZhilianSearchConditionConvertUtils.getworkExp(workExp))
         );
         // 学历
-        FunctionUtils.runIfNotBlank(searchCondition.getEducation(), () ->
-                conditionMap.put("education", ZhilianSearchConditionConvertUtils.getEducation(searchCondition.getEducation()))
+        OptionalOperationUtils.consumeIfNotBlank(searchCondition.getEducation(), education ->
+                conditionMap.put("education", ZhilianSearchConditionConvertUtils.getEducation(education))
         );
 
         // 2、常规条件
-        conditionMap.put("pageSize", CrawlerConsts.PAGE_SIZE);
+        conditionMap.put("pageSize", PAGE_SIZE);
         conditionMap.put("sortType", "publish");
         conditionMap.put("kt", "3");
 
@@ -161,10 +189,11 @@ public class ZhilianCrawlService implements CrawlService {
 
     private PositionInfoMsg analysisPositionDetail(String positionDetailUrl, PositionInfoMsg positionInfoMsg) throws Exception {
         // 随机睡眠
-        ProxyUtils.randomSleep();
+        proxyService.defaultRandomSleep();
 
         // 访问详情页
-        String htmlPage = Request.builder().urlNonParams(positionDetailUrl).addHeaders(CrawlerConsts.HEADER_MAP).build().getByHttpClient();
+        String htmlPage = Request.builder().urlNonParams(positionDetailUrl)
+            .addHeaders(proxyService.getCommonHeaderMap(SEARCH_URL)).build().getByHttpClient();
 
         // 处理反爬
         htmlPage = handlePreventCrawl(htmlPage);
@@ -176,17 +205,15 @@ public class ZhilianCrawlService implements CrawlService {
         StringBuilder describtion = new StringBuilder();
         describtion.append("职能要求：").append(SysConsts.LINE_SEPARATOR);
         // 技能要求
-        Element describtionSkill = describtionElement.selectFirst("div[class=describtion__skills-content]");
-        FunctionUtils.runIfNonNull(describtionSkill, () -> {
+        OptionalOperationUtils.consumeIfNonNull(describtionElement.selectFirst("div[class=describtion__skills-content]"), describtionSkill -> {
             describtionSkill.children().forEach(element -> {
                 describtion.append(element.text()).append(" ");
             });
         });
         // 岗位描述与职位要求
         describtion.append(SysConsts.LINE_SEPARATOR);
-        Element describtion_Detail = describtionElement.selectFirst("div[class=describtion__detail-content]");
-        FunctionUtils.runIfNonNull(describtion_Detail, () -> {
-            describtion_Detail.children().forEach(element -> {
+        OptionalOperationUtils.consumeIfNonNull(describtionElement.selectFirst("div[class=describtion__detail-content]"), describtionDetail -> {
+            describtionDetail.children().forEach(element -> {
                 if (element.children().isEmpty()) {
                     describtion.append(element.text()).append(SysConsts.LINE_SEPARATOR);
                 } else {
@@ -200,8 +227,7 @@ public class ZhilianCrawlService implements CrawlService {
     // end---------职位描述
 
         // 工作地址
-        Element jobAddressElement = document.selectFirst("span[class=job-address__content-text]");
-        FunctionUtils.runIfNonNull(jobAddressElement, () -> {
+        OptionalOperationUtils.consumeIfNonNull(document.selectFirst("span[class=job-address__content-text]"), jobAddressElement -> {
             positionInfoMsg.setWorkAddress(jobAddressElement.text());
         });
 
@@ -209,20 +235,17 @@ public class ZhilianCrawlService implements CrawlService {
         positionInfoMsg.setCompanyDevelopmentalStage("");
 
         // 经营领域
-        Element companyDomainElement = document.selectFirst("button[class='company__industry']");
-        FunctionUtils.runIfNonNull(companyDomainElement, () -> {
+        OptionalOperationUtils.consumeIfNonNull(document.selectFirst("button[class='company__industry']"), companyDomainElement -> {
             positionInfoMsg.setCompanyDomain(companyDomainElement.text());
         });
 
         // 公司主页
-        Element companyUrlElement = document.selectFirst("a[class=company__page-site]");
-        FunctionUtils.runIfNonNull(companyUrlElement, () -> {
+        OptionalOperationUtils.consumeIfNonNull(document.selectFirst("a[class=company__page-site]"), companyUrlElement -> {
             positionInfoMsg.setCompanyUrl(companyUrlElement.attr("href"));
         });
 
         // 公司介绍
-        Element companyIntroductionElement = document.selectFirst("div[class=company__description]");
-        FunctionUtils.runIfNonNull(companyIntroductionElement, () -> {
+        OptionalOperationUtils.consumeIfNonNull(document.selectFirst("div[class=company__description]"), companyIntroductionElement -> {
             positionInfoMsg.setCompanyIntroduction(companyIntroductionElement.text());
         });
 
