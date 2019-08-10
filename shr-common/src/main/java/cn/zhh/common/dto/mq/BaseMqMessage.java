@@ -1,6 +1,5 @@
 package cn.zhh.common.dto.mq;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -9,7 +8,7 @@ import java.time.format.DateTimeFormatter;
  *
  * @author Zhou Huanghua
  */
-public abstract class BaseMqMessage implements Serializable {
+public abstract class BaseMqMessage {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 
     private String messageId;

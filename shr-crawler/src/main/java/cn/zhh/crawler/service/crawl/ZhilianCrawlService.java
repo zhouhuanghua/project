@@ -11,7 +11,6 @@ import cn.zhh.crawler.service.MqProducer;
 import cn.zhh.crawler.service.ProxyService;
 import cn.zhh.crawler.util.OptionalOperationUtils;
 import cn.zhh.crawler.util.Request;
-import cn.zhh.crawler.util.ZhilianSearchConditionConvertUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -102,17 +101,15 @@ public class ZhilianCrawlService implements CrawlService {
         // 关键字
         conditionMap.put("kw", searchCondition.getContent());
         // 城市
-        OptionalOperationUtils.consumeIfNotBlank(searchCondition.getCity(), city ->
-                conditionMap.put("cityId", ZhilianSearchConditionConvertUtils.getCity(city))
-        );
+        Byte city = searchCondition.getCity();
+        conditionMap.put("cityId", ZhilianBossSearchConditionConverter.getCity(city,
+                ZhilianBossSearchConditionConverter.SITE_NAME.ZHILIAN));
         // 工作经验
-        OptionalOperationUtils.consumeIfNotBlank(searchCondition.getWorkExp(), workExp ->
-                conditionMap.put("workExperience", ZhilianSearchConditionConvertUtils.getworkExp(workExp))
-        );
+        Byte workExp = searchCondition.getWorkExp();
+        conditionMap.put("workExperience", ZhilianBossSearchConditionConverter.getWorkExpForZhilian(workExp));
         // 学历
-        OptionalOperationUtils.consumeIfNotBlank(searchCondition.getEducation(), education ->
-                conditionMap.put("education", ZhilianSearchConditionConvertUtils.getEducation(education))
-        );
+        Byte education = searchCondition.getEducation();
+        conditionMap.put("education", ZhilianBossSearchConditionConverter.getEducationForZhilian(education));
 
         // 2、常规条件
         conditionMap.put("pageSize", PAGE_SIZE);

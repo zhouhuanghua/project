@@ -4,7 +4,7 @@ import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
-import cn.zhh.common.enums.PositionSourceEnum;
+import cn.zhh.common.enums.*;
 import cn.zhh.crawler.service.MqProducer;
 import cn.zhh.crawler.service.ProxyService;
 import cn.zhh.crawler.util.OptionalOperationUtils;
@@ -25,8 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -67,12 +67,15 @@ public class LagouCrawlService implements CrawlService {
         log.info("开始搜索职位...");
         driver.findElement(By.id("search_input")).sendKeys(searchCondition.getContent());
         driver.findElement(By.id("search_button")).click();
-        // 选择工作经验 todo
+        // 选择工作经验
         log.info("开始选择工作经验...");
-        // 选择学历 todo
+        selectWorkExp(driver, searchCondition.getWorkExp());
+        // 选择学历
         log.info("开始选择学历...");
-        // 选择公司发展阶段 todo
+        selectEducation(driver, searchCondition.getEducation());
+        // 选择公司发展阶段
         log.info("开始选择公司发展阶段...");
+        selectDevelopmentStage(driver, searchCondition.getDevelopmentStage());
         // 选择最新排序方式
         OptionalOperationUtils.consumeIfNonNull(driver.findElement(By.id("order")), orderElement -> {
             log.info("按发布时间排序...");
@@ -228,25 +231,124 @@ public class LagouCrawlService implements CrawlService {
         // 公司介绍 无
     }
 
-    private void selectCity(WebDriver driver, String city) {
-
-        if (StringUtils.hasText(city)) {
-            // 城市列表
-            List<WebElement> cityElements = driver.findElement(By.id("changeCityBox"))
-                .findElement(By.tagName("ul"))
-                .findElements(By.tagName("li"));
-            // 根据城市点击不同的li标签
-            switch (city) {
-                case "北京": cityElements.get(0).click(); return;
-                case "上海": cityElements.get(1).click(); return;
-                case "广州": cityElements.get(3).click(); return;
-                case "深圳": cityElements.get(4).click(); return;
-                case "杭州": cityElements.get(2).click(); return;
-                case "成都": cityElements.get(5).click(); return;
+    private void selectCity(WebDriver driver, Byte city) {
+        // 遍历选择城市里面的全部a标签，构成映射关系
+        List<WebElement> aElements = driver.findElement(By.id("changeCityBox")).findElements(By.tagName("a"));
+        Map<Byte, WebElement> cityMap = new HashMap<>(8);
+        for (WebElement aElement : aElements) {
+            String text = aElement.getText().trim();
+            switch (text) {
+                case "全国站": cityMap.put(CityEnum.ALL.getCode(), aElement); break;
+                case "北京站": cityMap.put(CityEnum.BEIJING.getCode(), aElement); break;
+                case "上海站": cityMap.put(CityEnum.SHANGHAI.getCode(), aElement); break;
+                case "广州站": cityMap.put(CityEnum.GUANGZHOU.getCode(), aElement); break;
+                case "深圳站": cityMap.put(CityEnum.SHENZHEN.getCode(), aElement); break;
+                case "杭州站": cityMap.put(CityEnum.HANGZHOU.getCode(), aElement); break;
+                case "成都站": cityMap.put(CityEnum.CHENGDU.getCode(), aElement); break;
                 default: break;
             }
         }
-        // 没有匹配的，选择全国
-        driver.findElement(By.id("changeCityBox")).findElement(By.cssSelector("p[class=checkTips]")).findElement(By.tagName("a")).click();
+        // 如果为空，或者不在映射集合里面，则点击全国站
+        if (Objects.isNull(city) || !cityMap.containsKey(city)) {
+            cityMap.get(CityEnum.ALL.getCode()).click();
+        }
+        // 按值点击对应城市
+        cityMap.get(city).click();
+    }
+
+    private void selectWorkExp(WebDriver driver, Byte workExp) {
+        // 为空或者不限，就不管
+        if (Objects.isNull(workExp) || Objects.equals(WorkExpEnum.ALL.getCode(), workExp)) {
+            return;
+        }
+        // 遍历工作经验里面的全部a标签，构成映射关系
+        List<WebElement> aElements = driver.findElement(By.id("filterCollapse"))
+            .findElements(By.cssSelector("li[class=multi-chosen]")).get(0).findElements(By.tagName("a"));
+        Map<Byte, WebElement> workExpMap = new HashMap<>(8);
+        for (WebElement aElement : aElements) {
+            String text = aElement.getText().trim();
+            switch (text) {
+                case "不限": workExpMap.put(WorkExpEnum.ALL.getCode(), aElement); break;
+                case "应届毕业生": workExpMap.put(WorkExpEnum.NONE.getCode(), aElement); break;
+                case "3年及以下": workExpMap.put(WorkExpEnum.ONE2THREE.getCode(), aElement); break;
+                case "3-5年": workExpMap.put(WorkExpEnum.THREE2FIVE.getCode(), aElement); break;
+                case "5-10年": workExpMap.put(WorkExpEnum.FIVE2TEN.getCode(), aElement); break;
+                case "10年以上": workExpMap.put(WorkExpEnum.MORE10.getCode(), aElement); break;
+                case "不要求": workExpMap.put(WorkExpEnum.NOT_REQUIRED.getCode(), aElement); break;
+                default: break;
+            }
+        }
+        // 不在映射集合里面，则啥也不做
+        if (!workExpMap.containsKey(workExp)) {
+            return;
+        }
+        // 按值点击对应工作经验
+        workExpMap.get(workExp).click();
+    }
+
+    private void selectEducation(WebDriver driver, Byte education) {
+        // 为空或者不限，就不管
+        if (Objects.isNull(education) || Objects.equals(EducationEnum.ALL.getCode(), education)) {
+            return;
+        }
+        // 遍历工作经验里面的全部a标签，构成映射关系
+        System.out.println(driver.getPageSource());
+        List<WebElement> aElements = driver.findElement(By.id("filterCollapse"))
+                .findElements(By.cssSelector("li[class=multi-chosen]")).get(1).findElements(By.tagName("a"));
+        Map<Byte, WebElement> educationExpMap = new HashMap<>(8);
+        for (WebElement aElement : aElements) {
+            String text = aElement.getText().trim();
+            switch (text) {
+                case "不限": educationExpMap.put(EducationEnum.ALL.getCode(), aElement); break;
+                case "大专": educationExpMap.put(EducationEnum.JUNIOR_COLLEGE.getCode(), aElement); break;
+                case "本科": educationExpMap.put(EducationEnum.UNDERGRADUATE.getCode(), aElement); break;
+                case "硕士": educationExpMap.put(EducationEnum.MASTER.getCode(), aElement); break;
+                case "博士": educationExpMap.put(EducationEnum.DOCTOR.getCode(), aElement); break;
+                case "不要求": educationExpMap.put(EducationEnum.NOT_REQUIRED.getCode(), aElement); break;
+                default: break;
+            }
+        }
+
+        // 不在映射集合里面，则啥也不做
+        if (!educationExpMap.containsKey(education)) {
+            return;
+        }
+
+        // 按值点击对应工作经验
+        educationExpMap.get(education).click();
+    }
+
+    private void selectDevelopmentStage(WebDriver driver, Byte developmentStage) {
+        // 为空或者不限，就不管
+        if (Objects.isNull(developmentStage) || Objects.equals(DevelopmentStageEnum.ALL.getCode(), developmentStage)) {
+            return;
+        }
+        // 遍历工作经验里面的全部a标签，构成映射关系
+        List<WebElement> aElements = driver.findElement(By.id("filterCollapse"))
+                .findElements(By.cssSelector("li[class=multi-chosen]")).get(2).findElements(By.tagName("a"));
+        Map<Byte, WebElement> developmentStageMap = new HashMap<>(8);
+        for (WebElement aElement : aElements) {
+            String text = aElement.getText().trim();
+            switch (text) {
+                case "不限": developmentStageMap.put(DevelopmentStageEnum.ALL.getCode(), aElement); break;
+                case "未融资": developmentStageMap.put(DevelopmentStageEnum.NOT.getCode(), aElement); break;
+                case "天使轮": developmentStageMap.put(DevelopmentStageEnum.ANGEL.getCode(), aElement); break;
+                case "A轮": developmentStageMap.put(DevelopmentStageEnum.A.getCode(), aElement); break;
+                case "B轮": developmentStageMap.put(DevelopmentStageEnum.B.getCode(), aElement); break;
+                case "C轮": developmentStageMap.put(DevelopmentStageEnum.C.getCode(), aElement); break;
+                case "D轮及以上": developmentStageMap.put(DevelopmentStageEnum.D.getCode(), aElement); break;
+                case "上市公司": developmentStageMap.put(DevelopmentStageEnum.LISTED.getCode(), aElement); break;
+                case "不需要融资": developmentStageMap.put(DevelopmentStageEnum.NOT_NEED.getCode(), aElement); break;
+                default: break;
+            }
+        }
+
+        // 不在映射集合里面，则啥也不做
+        if (!developmentStageMap.containsKey(developmentStage)) {
+            return;
+        }
+
+        // 按值点击对应工作经验
+        developmentStageMap.get(developmentStage).click();
     }
 }

@@ -3,6 +3,8 @@ package cn.zhh.common.dto.mq;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 /**
  * 搜索职位信息消息
  *
@@ -10,22 +12,22 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SearchPositionInfoMsg extends BaseMqMessage {
+public class SearchPositionInfoMsg extends BaseMqMessage implements Serializable {
 
     /** 内容 */
     private String content;
 
     /** 城市 */
-    private String city;
+    private Byte city;
 
     /** 工作经验 */
-    private String workExp;
+    private Byte workExp;
 
     /** 学历 */
-    private String education;
+    private Byte education;
 
-    /** 公司规模 */
-    private String companyScale;
+    /** 公司发展阶段 */
+    private Byte developmentStage;
 
     @Override
     public String messageIdPrefix() {

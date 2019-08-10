@@ -43,10 +43,10 @@ public class BossCrawlService implements CrawlService {
 
     @Override
     public void crawl(SearchPositionInfoMsg searchCondition) throws Exception {
-        // 按条件搜索职位
+        // 按搜索条件构造请求建造器
         Request.Builder queryBuilder = Request.builder().urlNonParams(BASE_URL + "/job_detail")
-                .addQueryStringParameter("query", searchCondition.getContent())
                 .addHeaders(proxyService.getCommonHeaderMap(BASE_URL));
+        handleSearchCondition(queryBuilder, searchCondition);
         int pageNum = 1;
 
         // 处理第一页
@@ -79,6 +79,15 @@ public class BossCrawlService implements CrawlService {
         // 手动签收消息
         Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
         channel.basicAck(deliveryTag, false);
+    }
+
+    private void handleSearchCondition(Request.Builder queryBuilder, SearchPositionInfoMsg searchCondition) {
+        // 搜索内容
+        queryBuilder.addQueryStringParameter("query", searchCondition.getContent());
+        // 城市
+        Byte city = searchCondition.getCity();
+        queryBuilder.addQueryStringParameter("city", ZhilianBossSearchConditionConverter.getCity(city,
+            ZhilianBossSearchConditionConverter.SITE_NAME.BOSS));
     }
 
     private void handleEveryPage(Document document, int pageNum) {
