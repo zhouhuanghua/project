@@ -182,11 +182,11 @@ public class LagouCrawlService implements CrawlService {
         // 薪水
         positionInfoMsg.setSalary(spanElements.get(0).text().trim());
         // 城市
-        positionInfoMsg.setCity(spanElements.get(1).text().trim().replace("/", ""));
+        positionInfoMsg.setCity(spanElements.get(1).text().replaceAll("\\s*/\\s*", ""));
         // 工作经验
-        positionInfoMsg.setWorkExp(spanElements.get(2).text().trim());
+        positionInfoMsg.setWorkExp(spanElements.get(2).text().replaceAll("\\s*/\\s*", ""));
         // 学历
-        positionInfoMsg.setEducation(spanElements.get(3).text().trim());
+        positionInfoMsg.setEducation(spanElements.get(3).text().replaceAll("\\s*/\\s*", ""));
 
         // 职位标签
         Elements labelElements = document.selectFirst("dd[class=job_request]").selectFirst("ul").getElementsByTag("li");

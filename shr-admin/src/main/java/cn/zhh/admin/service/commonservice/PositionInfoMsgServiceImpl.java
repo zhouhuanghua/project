@@ -18,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 
 /**
- * 职位信息服务
+ * 职位信息消息服务
  *
  * @author Zhou Huanghua
  */
 @Service
 @Slf4j
-public class PositionInfoServiceImpl implements PositionInfoService {
+public class PositionInfoMsgServiceImpl implements PositionInfoMsgService {
 
     @Autowired
     private CompanyService companyService;

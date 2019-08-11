@@ -3,6 +3,8 @@ package cn.zhh.common.dto.mq;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 /**
  * 查询公司评论消息
  *
@@ -10,7 +12,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class QueryCompanyCommentMsg extends BaseMqMessage {
+public class QueryCompanyCommentMsg extends BaseMqMessage implements Serializable {
 
     /** 公司名称 */
     private String name;

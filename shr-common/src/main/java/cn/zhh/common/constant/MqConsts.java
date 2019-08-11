@@ -40,9 +40,9 @@ public interface MqConsts {
     /* 拉勾查询职位信息的队列 */
     String SEARCH_POSITION_INFO_LAGOU_QUEUE_NAME = "search_position_info_zhilian_queue";
 
-    /* 代理地址的路由 */
-    String PROXY_ADDRESS_ROUTING_KEY = "proxy_address_routing_key";
+    /* 校招&实习信息的路由 */
+    String SCHOOL_INTERNSHIP_ROUTING_KEY = "school_internship_routing_key";
 
-    /* 代理地址的队列 */
-    String PROXY_ADDRESS_QUEUE_NAMW = "proxy_address_queue";
+    /* 校招&实习信息的队列 */
+    String SCHOOL_INTERNSHIP_QUEUE_NAME = "school_internship_queue";
 }

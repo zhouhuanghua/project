@@ -11,6 +11,10 @@ import java.time.format.DateTimeFormatter;
 public abstract class BaseMqMessage {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 
+    protected BaseMqMessage() {
+        this.setMessageId();
+    }
+
     private String messageId;
 
     public String getMessageId() {

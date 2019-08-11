@@ -5,9 +5,8 @@ import cn.zhh.common.util.BusinessException;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Objects;
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * 基础实体类，属性已经设置默认值
@@ -32,7 +31,13 @@ public abstract class BaseEntity {
     private Byte isDeleted;
 
     public void setDefaultValue() {
-        Arrays.stream(this.getClass().getDeclaredFields())
+        List<Field> fieldList = new ArrayList<>() ;
+        Class tempClass = this.getClass();
+        while (Objects.nonNull(tempClass)) {
+            fieldList.addAll(Arrays.asList(tempClass .getDeclaredFields()));
+            tempClass = tempClass.getSuperclass();
+        }
+        fieldList.stream()
             .filter(f -> f.isAnnotationPresent(Column.class))
             .forEach(field -> {
                 field.setAccessible(true);

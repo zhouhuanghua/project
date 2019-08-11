@@ -1,7 +1,7 @@
 package cn.zhh.admin.service.domainservice;
 
-import cn.zhh.admin.dao.db.PositionDao;
-import cn.zhh.admin.entity.Position;
+import cn.zhh.admin.dao.db.SchoolInternshipCompanyDao;
+import cn.zhh.admin.entity.SchoolInternshipCompany;
 import cn.zhh.common.enums.IsDeletedEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,35 +12,33 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-;
-
 /**
- * 职位服务
+ * 校招-实习-公司服务
  *
  * @author Zhou Huanghua
  */
 @Service
 @Slf4j
-public class PositionServiceImpl implements PositionService {
+public class SchoolInternshipCompanyServiceImpl implements SchoolInternshipCompanyService {
 
     @Autowired
-    private PositionDao dao;
+    private SchoolInternshipCompanyDao dao;
 
     @Override
-    public JpaRepository<Position, Long> dao() {
+    public JpaRepository<SchoolInternshipCompany, Long> dao() {
         return dao;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Position insert(Position entity) {
+    public SchoolInternshipCompany insert(SchoolInternshipCompany entity) {
         // 判断是否已经存在，如果存在则更新，否则插入
-        Example<Position> positionExample = buildExample(Position.class, "source", entity.getSource(),
+        Example<SchoolInternshipCompany> companyExample = buildExample(SchoolInternshipCompany.class,
                 "uniqueKey", entity.getUniqueKey(), "isDeleted", IsDeletedEnum.NO.getCode());
-        Optional<Position> positionOptional = getByExample(positionExample);
-        if (positionOptional.isPresent()) {
-            log.info("岗位{}已经存在！", entity.getUniqueKey());
-            entity.setId(positionOptional.get().getId());
+        Optional<SchoolInternshipCompany> companyOptional = getByExample(companyExample);
+        if (companyOptional.isPresent()) {
+            log.info("校招-实习-公司{}已经存在！", entity.getUniqueKey());
+            entity.setId(companyOptional.get().getId());
         }
         return save(entity);
     }
