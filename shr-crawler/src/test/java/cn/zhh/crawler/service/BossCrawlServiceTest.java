@@ -1,6 +1,7 @@
 package cn.zhh.crawler.service;
 
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
+import cn.zhh.common.enums.CityEnum;
 import cn.zhh.crawler.service.crawl.BossCrawlService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +20,7 @@ public class BossCrawlServiceTest {
     public void crawl() throws Exception {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
         searchPositionInfoMsg.setContent("Java");
+        searchPositionInfoMsg.setCity(CityEnum.CHENGDU.getCode());
         bossCrawlService.crawl(searchPositionInfoMsg);
     }
 

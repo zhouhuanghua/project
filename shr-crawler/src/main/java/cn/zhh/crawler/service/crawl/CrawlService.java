@@ -22,4 +22,6 @@ public interface CrawlService {
     void crawl(SearchPositionInfoMsg searchCondition) throws Exception;
 
     void consumeMq(SearchPositionInfoMsg searchCondition, @Headers Map<String, Object> headers, Channel channel) throws Exception;
+
+    void syncCrawl(SearchPositionInfoMsg searchCondition);
 }

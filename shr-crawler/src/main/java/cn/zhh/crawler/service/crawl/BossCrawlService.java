@@ -20,6 +20,7 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 public class BossCrawlService implements CrawlService {
+
     @Autowired
     private MqProducer mqProducer;
     @Autowired
@@ -50,14 +52,15 @@ public class BossCrawlService implements CrawlService {
         int pageNum = 1;
 
         // 处理第一页
-        Document document = Jsoup.parse(queryBuilder.build().getByJsoup());
+        Document document = Jsoup.parse(queryBuilder.proxy(proxyService.getRandomProxyAddress()).build().getByJsoup());
         handleEveryPage(document, pageNum);
 
-        // 处理下一页（暂时爬取5页）
+        // 处理下一页（暂时爬取10页）
         for (; Objects.nonNull(document.selectFirst("div[class=page]").selectFirst("a[class=next]"))
-                && ++pageNum < 6; ) {
+                && ++pageNum < 11; ) {
             proxyService.sleep(5, TimeUnit.SECONDS);
-            document = Jsoup.parse(queryBuilder.addQueryStringParameter("page", String.valueOf(pageNum)).build().getByJsoup());
+            document = Jsoup.parse(queryBuilder.proxy(proxyService.getRandomProxyAddress())
+                .addQueryStringParameter("page", String.valueOf(pageNum)).build().getByJsoup());
             handleEveryPage(document, pageNum);
         }
     }
@@ -81,13 +84,23 @@ public class BossCrawlService implements CrawlService {
         channel.basicAck(deliveryTag, false);
     }
 
+    @Override
+    @Async("asyncServiceExecutor")
+    public void syncCrawl(SearchPositionInfoMsg searchCondition) {
+        try {
+            this.crawl(searchCondition);
+        } catch (Exception e) {
+            log.error("异步执行boss爬虫服务异常！", e);
+        }
+    }
+
     private void handleSearchCondition(Request.Builder queryBuilder, SearchPositionInfoMsg searchCondition) {
         // 搜索内容
         queryBuilder.addQueryStringParameter("query", searchCondition.getContent());
         // 城市
         Byte city = searchCondition.getCity();
-        queryBuilder.addQueryStringParameter("city", ZhilianBossSearchConditionConverter.getCity(city,
-            ZhilianBossSearchConditionConverter.SITE_NAME.BOSS));
+        queryBuilder.addQueryStringParameter("city", SearchConditionConverter.getCity(city,
+            SearchConditionConverter.SITE_NAME.BOSS));
     }
 
     private void handleEveryPage(Document document, int pageNum) {

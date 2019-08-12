@@ -1,6 +1,7 @@
 package cn.zhh.crawler.service;
 
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
+import cn.zhh.common.enums.CityEnum;
 import cn.zhh.crawler.service.crawl.ZhilianCrawlService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +19,8 @@ public class ZhilianCrawlServiceTest {
     @Test
     public void crawl() throws Exception {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
-        searchPositionInfoMsg.setContent("大数据");
+        searchPositionInfoMsg.setContent("Python");
+        searchPositionInfoMsg.setCity(CityEnum.GUANGZHOU.getCode());
         zhilianCrawlService.crawl(searchPositionInfoMsg);
         Thread.currentThread().join();
     }

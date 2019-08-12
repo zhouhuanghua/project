@@ -10,6 +10,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * TODO
@@ -20,10 +22,15 @@ public class SeleniumTest {
 
     @Test
     public void test() throws IOException {
-        /*int i = 5;
-        System.out.println(++i < 6);*/
-        String str = "经验1-3年 /";
-        System.out.println(str.replaceAll("\\s*/\\s*", ""));
+//        int i = 5;
+//        System.out.println(++i < 6);
+//        String str = "经验1-3年 /";
+//        System.out.println(str.replaceAll("\\s*/\\s*", ""));
+        Pattern pattern = Pattern.compile("^\\d{2}:\\d{2}");
+        Matcher matcher = pattern.matcher("09:58  发布于拉勾网");
+        if (matcher.find()) {
+            System.out.println(matcher.group());
+        }
 
     }
 

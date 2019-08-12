@@ -24,6 +24,7 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @Slf4j
 public class ZhilianCrawlService implements CrawlService {
+
     @Autowired
     private MqProducer mqProducer;
     @Autowired
@@ -94,6 +96,16 @@ public class ZhilianCrawlService implements CrawlService {
         channel.basicAck(deliveryTag, false);
     }
 
+    @Override
+    @Async("asyncServiceExecutor")
+    public void syncCrawl(SearchPositionInfoMsg searchCondition) {
+        try {
+            this.crawl(searchCondition);
+        } catch (Exception e) {
+            log.error("异步执行智联爬虫服务异常！", e);
+        }
+    }
+
     private Map<String, String> buildParams(SearchPositionInfoMsg searchCondition) {
         Map<String, String> conditionMap = new HashMap<>(16);
 
@@ -102,14 +114,8 @@ public class ZhilianCrawlService implements CrawlService {
         conditionMap.put("kw", searchCondition.getContent());
         // 城市
         Byte city = searchCondition.getCity();
-        conditionMap.put("cityId", ZhilianBossSearchConditionConverter.getCity(city,
-                ZhilianBossSearchConditionConverter.SITE_NAME.ZHILIAN));
-        // 工作经验
-        Byte workExp = searchCondition.getWorkExp();
-        conditionMap.put("workExperience", ZhilianBossSearchConditionConverter.getWorkExpForZhilian(workExp));
-        // 学历
-        Byte education = searchCondition.getEducation();
-        conditionMap.put("education", ZhilianBossSearchConditionConverter.getEducationForZhilian(education));
+        conditionMap.put("cityId", SearchConditionConverter.getCity(city,
+                SearchConditionConverter.SITE_NAME.ZHILIAN));
 
         // 2、常规条件
         conditionMap.put("pageSize", PAGE_SIZE);

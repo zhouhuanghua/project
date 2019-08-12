@@ -4,13 +4,15 @@ import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
-import cn.zhh.common.enums.*;
+import cn.zhh.common.enums.CityEnum;
+import cn.zhh.common.enums.PositionSourceEnum;
 import cn.zhh.crawler.service.MqProducer;
 import cn.zhh.crawler.service.ProxyService;
 import cn.zhh.crawler.util.OptionalOperationUtils;
 import cn.zhh.crawler.util.Request;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.utils.DateUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,17 +22,19 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.amqp.rabbit.annotation.*;
+import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 拉勾爬虫服务
@@ -63,19 +67,12 @@ public class LagouCrawlService implements CrawlService {
         // 选择城市
         log.info("开始选择城市...");
         selectCity(driver, searchCondition.getCity());
+        proxyService.sleep(1, TimeUnit.SECONDS);
         // 执行搜索
         log.info("开始搜索职位...");
         driver.findElement(By.id("search_input")).sendKeys(searchCondition.getContent());
         driver.findElement(By.id("search_button")).click();
-        // 选择工作经验
-        log.info("开始选择工作经验...");
-        selectWorkExp(driver, searchCondition.getWorkExp());
-        // 选择学历
-        log.info("开始选择学历...");
-        selectEducation(driver, searchCondition.getEducation());
-        // 选择公司发展阶段
-        log.info("开始选择公司发展阶段...");
-        selectDevelopmentStage(driver, searchCondition.getDevelopmentStage());
+        proxyService.sleep(2, TimeUnit.SECONDS);
         // 选择最新排序方式
         OptionalOperationUtils.consumeIfNonNull(driver.findElement(By.id("order")), orderElement -> {
             log.info("按发布时间排序...");
@@ -87,8 +84,8 @@ public class LagouCrawlService implements CrawlService {
         // 处理第一页
         int pageNum = 1;
         handleEveryPage(driver, pageNum);
-        // 下一页(暂时爬取5页)
-        for (; ++pageNum < 6; ) {
+        // 下一页(暂时爬取10页)
+        for (; ++pageNum < 11; ) {
             WebElement pagerNextElement = driver.findElement(By.className("pager_next"));
             if (Objects.isNull(pagerNextElement)) {
                 return;
@@ -120,6 +117,16 @@ public class LagouCrawlService implements CrawlService {
         // 手动签收消息
         Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
         channel.basicAck(deliveryTag, false);
+    }
+
+    @Override
+    @Async("asyncServiceExecutor")
+    public void syncCrawl(SearchPositionInfoMsg searchCondition) {
+        try {
+            this.crawl(searchCondition);
+        } catch (Exception e) {
+            log.error("异步执行拉勾爬虫服务异常！", e);
+        }
     }
 
     private void handleEveryPage(WebDriver driver, int pageNum) {
@@ -188,6 +195,12 @@ public class LagouCrawlService implements CrawlService {
         // 学历
         positionInfoMsg.setEducation(spanElements.get(3).text().replaceAll("\\s*/\\s*", ""));
 
+        // 发布时间
+        String publishTimeText = document.selectFirst("dd[class=job_request]").selectFirst("p[class=publish_time]").text();
+        if (StringUtils.hasText(publishTimeText)) {
+            positionInfoMsg.setPublishTime(getPublishTime(publishTimeText));
+        }
+
         // 职位标签
         Elements labelElements = document.selectFirst("dd[class=job_request]").selectFirst("ul").getElementsByTag("li");
         String positionLabel = labelElements.stream().map(Element::text).reduce((s1, s2) -> s1 + "," + s2).orElse("");
@@ -205,9 +218,7 @@ public class LagouCrawlService implements CrawlService {
         // 工作地址
         Elements aElements = document.selectFirst("div[class=work_addr]").getElementsByTag("a");
         String workAddress = aElements.stream().map(Element::text).reduce((s1, s2) -> s1 + s2).orElse("");
-        positionInfoMsg.setWorkAddress(workAddress);
-
-        // 发布时间 todo
+        positionInfoMsg.setWorkAddress(workAddress.replace("查看地图", ""));
 
         Element companyElement = document.getElementById("job_company");
         Element aElement = companyElement.selectFirst("dt").selectFirst("a");
@@ -256,99 +267,31 @@ public class LagouCrawlService implements CrawlService {
         cityMap.get(city).click();
     }
 
-    private void selectWorkExp(WebDriver driver, Byte workExp) {
-        // 为空或者不限，就不管
-        if (Objects.isNull(workExp) || Objects.equals(WorkExpEnum.ALL.getCode(), workExp)) {
-            return;
+    private final Pattern pattern1 = Pattern.compile("^\\d{2}:\\d{2}");
+    private final Pattern pattern2 = Pattern.compile("^\\d{1}");
+    private final Pattern pattern3 = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");
+    private Date getPublishTime(String text) {
+        Matcher matcher = null;
+        // 09:58  发布于拉勾网
+        if ((matcher = pattern1.matcher(text)).find()) {
+            String[] hm = matcher.group().split(":");
+            int h = Integer.parseInt(hm[0]);
+            int m = Integer.parseInt(hm[1]);
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, h);
+            calendar.set(Calendar.MINUTE, m);
+            return calendar.getTime();
         }
-        // 遍历工作经验里面的全部a标签，构成映射关系
-        List<WebElement> aElements = driver.findElement(By.id("filterCollapse"))
-            .findElements(By.cssSelector("li[class=multi-chosen]")).get(0).findElements(By.tagName("a"));
-        Map<Byte, WebElement> workExpMap = new HashMap<>(8);
-        for (WebElement aElement : aElements) {
-            String text = aElement.getText().trim();
-            switch (text) {
-                case "不限": workExpMap.put(WorkExpEnum.ALL.getCode(), aElement); break;
-                case "应届毕业生": workExpMap.put(WorkExpEnum.NONE.getCode(), aElement); break;
-                case "3年及以下": workExpMap.put(WorkExpEnum.ONE2THREE.getCode(), aElement); break;
-                case "3-5年": workExpMap.put(WorkExpEnum.THREE2FIVE.getCode(), aElement); break;
-                case "5-10年": workExpMap.put(WorkExpEnum.FIVE2TEN.getCode(), aElement); break;
-                case "10年以上": workExpMap.put(WorkExpEnum.MORE10.getCode(), aElement); break;
-                case "不要求": workExpMap.put(WorkExpEnum.NOT_REQUIRED.getCode(), aElement); break;
-                default: break;
-            }
+        // 3天前  发布于拉勾网
+        else if ((matcher = pattern2.matcher(text)).find()) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, -(Integer.parseInt(matcher.group())));
         }
-        // 不在映射集合里面，则啥也不做
-        if (!workExpMap.containsKey(workExp)) {
-            return;
-        }
-        // 按值点击对应工作经验
-        workExpMap.get(workExp).click();
-    }
-
-    private void selectEducation(WebDriver driver, Byte education) {
-        // 为空或者不限，就不管
-        if (Objects.isNull(education) || Objects.equals(EducationEnum.ALL.getCode(), education)) {
-            return;
-        }
-        // 遍历工作经验里面的全部a标签，构成映射关系
-        System.out.println(driver.getPageSource());
-        List<WebElement> aElements = driver.findElement(By.id("filterCollapse"))
-                .findElements(By.cssSelector("li[class=multi-chosen]")).get(1).findElements(By.tagName("a"));
-        Map<Byte, WebElement> educationExpMap = new HashMap<>(8);
-        for (WebElement aElement : aElements) {
-            String text = aElement.getText().trim();
-            switch (text) {
-                case "不限": educationExpMap.put(EducationEnum.ALL.getCode(), aElement); break;
-                case "大专": educationExpMap.put(EducationEnum.JUNIOR_COLLEGE.getCode(), aElement); break;
-                case "本科": educationExpMap.put(EducationEnum.UNDERGRADUATE.getCode(), aElement); break;
-                case "硕士": educationExpMap.put(EducationEnum.MASTER.getCode(), aElement); break;
-                case "博士": educationExpMap.put(EducationEnum.DOCTOR.getCode(), aElement); break;
-                case "不要求": educationExpMap.put(EducationEnum.NOT_REQUIRED.getCode(), aElement); break;
-                default: break;
-            }
+        // 2019-08-08  发布于拉勾网
+        else if ((matcher = pattern3.matcher(text)).find()) {
+            return DateUtils.parseDate(matcher.group(), new String[]{"yyyy-MM-dd"});
         }
 
-        // 不在映射集合里面，则啥也不做
-        if (!educationExpMap.containsKey(education)) {
-            return;
-        }
-
-        // 按值点击对应工作经验
-        educationExpMap.get(education).click();
-    }
-
-    private void selectDevelopmentStage(WebDriver driver, Byte developmentStage) {
-        // 为空或者不限，就不管
-        if (Objects.isNull(developmentStage) || Objects.equals(DevelopmentStageEnum.ALL.getCode(), developmentStage)) {
-            return;
-        }
-        // 遍历工作经验里面的全部a标签，构成映射关系
-        List<WebElement> aElements = driver.findElement(By.id("filterCollapse"))
-                .findElements(By.cssSelector("li[class=multi-chosen]")).get(2).findElements(By.tagName("a"));
-        Map<Byte, WebElement> developmentStageMap = new HashMap<>(8);
-        for (WebElement aElement : aElements) {
-            String text = aElement.getText().trim();
-            switch (text) {
-                case "不限": developmentStageMap.put(DevelopmentStageEnum.ALL.getCode(), aElement); break;
-                case "未融资": developmentStageMap.put(DevelopmentStageEnum.NOT.getCode(), aElement); break;
-                case "天使轮": developmentStageMap.put(DevelopmentStageEnum.ANGEL.getCode(), aElement); break;
-                case "A轮": developmentStageMap.put(DevelopmentStageEnum.A.getCode(), aElement); break;
-                case "B轮": developmentStageMap.put(DevelopmentStageEnum.B.getCode(), aElement); break;
-                case "C轮": developmentStageMap.put(DevelopmentStageEnum.C.getCode(), aElement); break;
-                case "D轮及以上": developmentStageMap.put(DevelopmentStageEnum.D.getCode(), aElement); break;
-                case "上市公司": developmentStageMap.put(DevelopmentStageEnum.LISTED.getCode(), aElement); break;
-                case "不需要融资": developmentStageMap.put(DevelopmentStageEnum.NOT_NEED.getCode(), aElement); break;
-                default: break;
-            }
-        }
-
-        // 不在映射集合里面，则啥也不做
-        if (!developmentStageMap.containsKey(developmentStage)) {
-            return;
-        }
-
-        // 按值点击对应工作经验
-        developmentStageMap.get(developmentStage).click();
+        return new Date();
     }
 }

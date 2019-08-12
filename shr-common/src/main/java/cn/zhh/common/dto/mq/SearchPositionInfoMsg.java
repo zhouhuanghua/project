@@ -20,15 +20,6 @@ public class SearchPositionInfoMsg extends BaseMqMessage implements Serializable
     /** 城市 */
     private Byte city;
 
-    /** 工作经验 */
-    private Byte workExp;
-
-    /** 学历 */
-    private Byte education;
-
-    /** 公司发展阶段 */
-    private Byte developmentStage;
-
     @Override
     public String messageIdPrefix() {
         return "SPIM";
