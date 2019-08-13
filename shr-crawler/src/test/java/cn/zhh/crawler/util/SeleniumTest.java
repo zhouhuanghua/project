@@ -1,5 +1,9 @@
 package cn.zhh.crawler.util;
 
+import com.machinepublishers.jbrowserdriver.JBrowserDriver;
+import com.machinepublishers.jbrowserdriver.Settings;
+import com.machinepublishers.jbrowserdriver.Timezone;
+import com.machinepublishers.jbrowserdriver.UserAgent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -9,6 +13,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,6 +77,23 @@ public class SeleniumTest {
                 }
                 return;
             });
+    }
+
+    @Test
+    public void test3() {
+        WebDriver driver = new JBrowserDriver(Settings.builder()
+            .timezone(Timezone.AMERICA_NEWYORK)
+            .userAgent(UserAgent.CHROME).build());
+        // says 120 but is really 0
+        driver.manage().timeouts().pageLoadTimeout(120, TimeUnit.SECONDS);
+
+        driver.get("https://www.baidu.com");
+        String pageSource = driver.getPageSource();
+        System.out.println(pageSource);
+
+        if (Objects.nonNull(driver)) {
+            driver.close();
+        }
 
     }
 }
