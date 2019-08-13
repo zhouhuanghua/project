@@ -7,23 +7,33 @@ import com.machinepublishers.jbrowserdriver.UserAgent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 /**
  * TODO
  *
  * @author Zhou Huanghua
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest
 public class SeleniumTest {
+
+    @Autowired
+    private WebDriver webDriver;
 
     @Test
     public void test() throws IOException {
@@ -82,18 +92,24 @@ public class SeleniumTest {
     @Test
     public void test3() {
         WebDriver driver = new JBrowserDriver(Settings.builder()
-            .timezone(Timezone.AMERICA_NEWYORK)
+            .timezone(Timezone.ASIA_SHANGHAI)
             .userAgent(UserAgent.CHROME).build());
         // says 120 but is really 0
-        driver.manage().timeouts().pageLoadTimeout(120, TimeUnit.SECONDS);
-
+//        driver.manage().timeouts().pageLoadTimeout(120, TimeUnit.SECONDS);
         driver.get("https://www.baidu.com");
         String pageSource = driver.getPageSource();
         System.out.println(pageSource);
 
         if (Objects.nonNull(driver)) {
-            driver.close();
+            driver.quit();
         }
-
     }
+
+    @Test
+    public void test4() {
+        IntStream.range(1, 10).forEach(i -> {
+            System.out.println(webDriver);
+        });
+    }
+
 }

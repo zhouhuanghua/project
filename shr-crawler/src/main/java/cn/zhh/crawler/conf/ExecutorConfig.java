@@ -8,13 +8,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.Executor;
 
 /**
- * Bean配置类
+ * 线城池配置类
  *
  * @author Zhou Huanghua
  */
 @Configuration
 @Slf4j
-public class BeanConfig {
+public class ExecutorConfig {
 
     @Bean("asyncServiceExecutor")
     public Executor asyncServiceExecutor() {

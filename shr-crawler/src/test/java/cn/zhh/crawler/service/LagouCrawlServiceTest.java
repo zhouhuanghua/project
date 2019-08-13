@@ -19,7 +19,7 @@ public class LagouCrawlServiceTest {
     @Test
     public void crawl() throws Exception {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
-        searchPositionInfoMsg.setContent("Java");
+        searchPositionInfoMsg.setContent("人工智能");
         searchPositionInfoMsg.setCity(CityEnum.GUANGZHOU.getCode());
         lagouCrawlService.crawl(searchPositionInfoMsg);
         Thread.currentThread().join();

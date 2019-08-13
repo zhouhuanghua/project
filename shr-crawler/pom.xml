@@ -13,6 +13,14 @@
     <artifactId>shr-crawler</artifactId>
     <packaging>war</packaging>
 
+    <properties>
+        <httpclient-version>4.5.9</httpclient-version>
+        <jsoup-version>1.12.1</jsoup-version>
+        <fastjson-version>1.2.59</fastjson-version>
+        <selenium.version>3.141.59</selenium.version>
+        <jbrowser.driver.version>1.0.1</jbrowser.driver.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>cn.zhh</groupId>
@@ -25,27 +33,27 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.9</version>
+            <version>${httpclient-version}</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.12.1</version>
+            <version>${jsoup-version}</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.59</version>
+            <version>${fastjson-version}</version>
         </dependency>
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>3.141.59</version>
+            <artifactId>selenium-chrome-driver</artifactId>
+            <version>${selenium.version}</version>
         </dependency>
         <dependency>
             <groupId>com.machinepublishers</groupId>
             <artifactId>jbrowserdriver</artifactId>
-            <version>1.0.1</version>
+            <version>${jbrowser.driver.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

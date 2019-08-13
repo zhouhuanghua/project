@@ -17,3 +17,10 @@ spring:
         max-concurrency: 10
         acknowledge-mode: manual
         prefetch: 1
+
+# Selenium配置
+selenium:
+  webdriver:
+    # chrome or jbrowser
+    type: jbrowser
+    chrome-driver-path: src/main/resources/static/chromedriver.exe
