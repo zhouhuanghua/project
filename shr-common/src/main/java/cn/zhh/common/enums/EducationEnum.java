@@ -37,4 +37,13 @@ public enum EducationEnum {
         }
         return null;
     }
+
+    public static Byte desc2code(String desc) {
+        for (EducationEnum educationEnum : EducationEnum.values()) {
+            if (Objects.equals(educationEnum.getDescription(), desc)) {
+                return educationEnum.getCode();
+            }
+        }
+        return null;
+    }
 }

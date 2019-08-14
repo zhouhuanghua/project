@@ -40,4 +40,13 @@ public enum DevelopmentStageEnum {
         }
         return null;
     }
+
+    public static Byte desc2code(String desc) {
+        for (DevelopmentStageEnum developmentStageEnum : DevelopmentStageEnum.values()) {
+            if (Objects.equals(developmentStageEnum.getDescription(), desc)) {
+                return developmentStageEnum.getCode();
+            }
+        }
+        return null;
+    }
 }

@@ -39,4 +39,13 @@ public enum CityEnum {
         }
         return null;
     }
+
+    public static Byte desc2code(String desc) {
+        for (CityEnum cityEnum : CityEnum.values()) {
+            if (Objects.equals(cityEnum.getDescription(), desc)) {
+                return cityEnum.getCode();
+            }
+        }
+        return null;
+    }
 }

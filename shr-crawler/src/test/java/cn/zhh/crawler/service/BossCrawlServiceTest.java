@@ -2,7 +2,6 @@ package cn.zhh.crawler.service;
 
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
 import cn.zhh.common.enums.CityEnum;
-import cn.zhh.crawler.service.crawl.BossCrawlService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

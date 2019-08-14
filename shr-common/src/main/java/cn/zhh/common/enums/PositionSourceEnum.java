@@ -35,4 +35,13 @@ public enum PositionSourceEnum {
         }
         return null;
     }
+
+    public static Byte desc2code(String desc) {
+        for (PositionSourceEnum positionSourceEnum : PositionSourceEnum.values()) {
+            if (Objects.equals(positionSourceEnum.getDescription(), desc)) {
+                return positionSourceEnum.getCode();
+            }
+        }
+        return null;
+    }
 }

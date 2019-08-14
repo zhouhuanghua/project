@@ -15,12 +15,17 @@ import java.util.Objects;
 public class Response<T> implements Serializable {
 
     private static final long serialVersionUID = 6547662806723050209L;
-    private static final int SUCCESS = 0;
+
+    private static final int SUCCESS = 1;
+
+    private static final String OK = "OK";
 
     @Getter
     private Integer code;
+
     @Getter
     private String msg;
+
     @Getter
     private T content;
 
@@ -31,7 +36,7 @@ public class Response<T> implements Serializable {
     }
 
     public static <T> Response<T> ok() {
-        return new Response<>(SUCCESS, null, (T)null);
+        return new Response<>(SUCCESS, OK, (T)null);
     }
 
     public static <T> Response<T> ok(String msg) {
@@ -39,7 +44,7 @@ public class Response<T> implements Serializable {
     }
 
     public static <T> Response<T> ok(T content) {
-        return new Response<>(SUCCESS, null, content);
+        return new Response<>(SUCCESS, OK, content);
     }
 
     public static <T> Response<T> ok(String msg, T content) {
@@ -55,7 +60,7 @@ public class Response<T> implements Serializable {
     }
 
     public boolean isErr() {
-        return this.code != 0;
+        return this.code != SUCCESS;
     }
 
     public T get() {

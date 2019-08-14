@@ -39,4 +39,13 @@ public enum WorkExpEnum {
         }
         return null;
     }
+
+    public static Byte desc2code(String desc) {
+        for (WorkExpEnum workExpEnum : WorkExpEnum.values()) {
+            if (Objects.equals(workExpEnum.getDescription(), desc)) {
+                return workExpEnum.getCode();
+            }
+        }
+        return null;
+    }
 }

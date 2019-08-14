@@ -2,6 +2,8 @@ package cn.zhh.admin.dto;
 
 import lombok.Data;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.persistence.Id;
 import java.util.Date;
@@ -20,6 +22,7 @@ public class PositionSearchVO {
 
     private String uniqueKey;
 
+    @Field(type = FieldType.Text)
     private String name;
 
     private Byte source;
@@ -38,9 +41,10 @@ public class PositionSearchVO {
 
     private Date publishTime;
 
+    @Field(type = FieldType.Text)
     private String companyName;
 
     private String companyLogo;
 
-    private String companyScale;
+    private String companyDevelopmentStage;
 }

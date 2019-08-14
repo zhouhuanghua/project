@@ -10,7 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 自定义分页数据
+ * 自定义分页对象
  *
  * @author Zhou Huanghua
  */
@@ -38,13 +38,13 @@ public class Page<T> implements Serializable {
         return page;
     }
 
-    public <E> Page<E> recoreConvert(Function<T, E> function) {
+    public <E> Page<E> recordConvert(Function<T, E> function) {
         // 将原分页除了records的其它属性拷贝到新分页
         List<T> originalRecords = this.getRecords();
         this.setRecords(null);
         Page<E> newPage = new Page<>();
         BeanUtils.copyProperties(this, newPage);
-        // recores转换
+        // records转换
         List<E> newRecored = originalRecords.stream().map(function).collect(Collectors.toList());
         newPage.setRecords(newRecored);
         // 返回新的分页
