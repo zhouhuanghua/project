@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  */
 public class OptionalOperationUtils {
 
-    public static <T> void consumeIfNonNull(T t, Consumer<T> consumer ) {
+    public static <T> void consumeIfNonNull(T t, Consumer<T> consumer) {
         if (Objects.nonNull(t)) {
             consumer.accept(t);
         }

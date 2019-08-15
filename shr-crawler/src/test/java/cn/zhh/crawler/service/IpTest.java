@@ -38,7 +38,7 @@ public class IpTest {
                         .cookie("auth", "token")
                         .timeout(3000)
                         .get();
-                if(doc != null) {
+                if (doc != null) {
                     System.out.println(ip);
                 }
             } catch (Throwable t) {

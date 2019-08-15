@@ -14,7 +14,7 @@ import java.util.Date;
  * @author Zhou Huanghua
  */
 @Data
-@Document(indexName="shr", type="PositionSearchVO")
+@Document(indexName = "shr", type = "PositionSearchVO")
 public class PositionSearchVO {
 
     @Id

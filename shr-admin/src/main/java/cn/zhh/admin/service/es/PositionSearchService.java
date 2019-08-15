@@ -18,4 +18,6 @@ public interface PositionSearchService {
     void clear();
 
     void deleteById(Long id);
+
+    void refreshDb2Es();
 }

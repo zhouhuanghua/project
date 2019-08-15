@@ -20,54 +20,52 @@ public class BeanUtils {
         org.springframework.beans.BeanUtils.copyProperties(source, target, ignoreProperties);
     }
 
-    public static void copySelectedProperties(Object source, Object target, String... propertyNames){
-        for(String propertyName : propertyNames){
-            String[] words = propertyName.split(":");      
+    public static void copySelectedProperties(Object source, Object target, String... propertyNames) {
+        for (String propertyName : propertyNames) {
+            String[] words = propertyName.split(":");
             String sourcePropertyName = words[0];
             Object propertyValue = getPropertyValue(source, sourcePropertyName);
             int len = words.length;
-            if(len == 1) {
+            if (len == 1) {
                 setPropertyValue(target, sourcePropertyName, propertyValue);
-            }
-            else if(len > 1) {
-                for(int i = 1; i < len; i++) {
+            } else if (len > 1) {
+                for (int i = 1; i < len; i++) {
                     String targetPropertyName = words[i];
                     setPropertyValue(target, targetPropertyName, propertyValue);
                 }
             }
         }
     }
-    
-    public static void deleteSelectedProperties(Object target, String... propertyNames){
-        for(String propertyName : propertyNames){
+
+    public static void deleteSelectedProperties(Object target, String... propertyNames) {
+        for (String propertyName : propertyNames) {
             setPropertyValue(target, propertyName, null);
         }
     }
-    
+
     public static <T> T createWithProperties(Object source, Class<T> targetClass, String... propertyNames) {
         try {
             T target = targetClass.newInstance();
             copyProperties(source, target, propertyNames);
             return target;
-        }
-        catch (Throwable ex) {
+        } catch (Throwable ex) {
             throw new FatalBeanException(
                     "Could not new instance for class '" + targetClass.getName() + "'", ex);
         }
     }
-    
+
     public static <T> List<T> createListWithProperties(List<?> sources, Class<T> targetClass) {
         List<T> result = new LinkedList<>();
-        
-        for(Object source : sources) {
+
+        for (Object source : sources) {
             T target = createWithProperties(source, targetClass);
             result.add(target);
         }
-        
+
         return result;
     }
 
-    public static Object getPropertyValue(Object bean, String propertyName){
+    public static Object getPropertyValue(Object bean, String propertyName) {
         PropertyDescriptor propertyDescriptor = org.springframework.beans.BeanUtils.getPropertyDescriptor(bean.getClass(), propertyName);
         Method readMethod = propertyDescriptor.getReadMethod();
         if (!Modifier.isPublic(readMethod.getDeclaringClass().getModifiers())) {
@@ -76,7 +74,7 @@ public class BeanUtils {
         return ReflectionUtils.invokeMethod(readMethod, bean);
     }
 
-    public static void setPropertyValue(Object bean, String propertyName, Object propertyValue){
+    public static void setPropertyValue(Object bean, String propertyName, Object propertyValue) {
         PropertyDescriptor propertyDescriptor = org.springframework.beans.BeanUtils.getPropertyDescriptor(bean.getClass(), propertyName);
         Method writeMethod = propertyDescriptor.getWriteMethod();
         if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())) {

@@ -4,8 +4,7 @@ import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
-import cn.zhh.common.enums.CityEnum;
-import cn.zhh.common.enums.PositionSourceEnum;
+import cn.zhh.common.enums.*;
 import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.crawler.util.Request;
 import com.rabbitmq.client.Channel;
@@ -42,16 +41,16 @@ import java.util.regex.Pattern;
 @Slf4j
 public class LagouCrawlService implements CrawlService {
 
+    private final String BASE_URL = "https://www.lagou.com/";
+    private final Pattern pattern1 = Pattern.compile("^\\d{2}:\\d{2}");
+    private final Pattern pattern2 = Pattern.compile("^\\d{1}");
+    private final Pattern pattern3 = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");
     @Autowired
     private MqProducer mqProducer;
-
     @Autowired
     private ProxyService proxyService;
-
     @Autowired
     private WebDriverFactory webDriverFactory;
-
-    private final String BASE_URL = "https://www.lagou.com/";
 
     @Override
     public void crawl(SearchPositionInfoMsg searchCondition) throws Exception {
@@ -121,10 +120,99 @@ public class LagouCrawlService implements CrawlService {
     @Async("asyncServiceExecutor")
     public void syncCrawl(SearchPositionInfoMsg searchCondition) {
         try {
+            log.info("拉勾爬虫服务异步启动，职位：{}，城市：{}", searchCondition.getContent(), searchCondition.getCity());
             this.crawl(searchCondition);
         } catch (Exception e) {
             log.error("异步执行拉勾爬虫服务异常！", e);
         }
+    }
+
+    @Override
+    public void convert(PositionInfoMsg positionInfoMsg) {
+        // 工作经验转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
+            switch (workExp) {
+                case "经验不限":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NOT_REQUIRED.getDescription());
+                    break;
+                case "经验应届毕业生":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NONE.getDescription());
+                    break;
+                case "经验1年以下":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.LESS1.getDescription());
+                    break;
+                case "经验1-3年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.ONE2THREE.getDescription());
+                    break;
+                case "经验3-5年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.THREE2FIVE.getDescription());
+                    break;
+                case "经验5-10年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.FIVE2TEN.getDescription());
+                    break;
+                case "经验10年以上":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.MORE10.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NOT_REQUIRED.getDescription());
+                    break;
+            }
+        });
+        // 学历转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
+            switch (workExp) {
+                case "学历不限":
+                    positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
+                    break;
+                case "大专及以上":
+                    positionInfoMsg.setEducation(EducationEnum.JUNIOR_COLLEGE.getDescription());
+                    break;
+                case "本科及以上":
+                    positionInfoMsg.setEducation(EducationEnum.UNDERGRADUATE.getDescription());
+                    break;
+                case "硕士及以上":
+                    positionInfoMsg.setEducation(EducationEnum.MASTER.getDescription());
+                    break;
+                case "博士及以上":
+                    positionInfoMsg.setEducation(EducationEnum.DOCTOR.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
+                    break;
+            }
+        });
+        // 公司发展阶段转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getCompanyDevelopmentalStage(), developmentalStage -> {
+            switch (developmentalStage) {
+                case "不需要融资":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.NOT_NEED.getDescription());
+                    break;
+                case "未融资":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.NOT.getDescription());
+                    break;
+                case "天使轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.ANGEL.getDescription());
+                    break;
+                case "A轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.A.getDescription());
+                    break;
+                case "B轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.B.getDescription());
+                    break;
+                case "C轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.C.getDescription());
+                    break;
+                case "D轮及以上":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.D.getDescription());
+                    break;
+                case "上市公司":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.LISTED.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setCompanyDevelopmentalStage("");
+                    break;
+            }
+        });
     }
 
     private void handleEveryPage(WebDriver webDriver, int pageNum) {
@@ -137,7 +225,7 @@ public class LagouCrawlService implements CrawlService {
             PositionInfoMsg positionInfoMsg = new PositionInfoMsg();
             // 处理职位
             try {
-                log.info("正在解析第{}页第{}条职位信息...", pageNum ,i+1);
+                log.info("正在解析第{}页第{}条职位信息...", pageNum, i + 1);
                 // 唯一标识
                 positionInfoMsg.setUniqueKey(positionElement.getAttribute("data-positionid"));
                 // 职位链接
@@ -153,14 +241,14 @@ public class LagouCrawlService implements CrawlService {
             }
             // 推送MQ
             try {
-                log.info("正在推送第{}页第{}条职位信息...", pageNum ,i+1);
+                log.info("正在推送第{}页第{}条职位信息...", pageNum, i + 1);
                 mqProducer.sendPositionInfoMsg(positionInfoMsg);
             } catch (Exception e) {
                 log.error(String.format("职位%s推送MQ异常！", positionInfoMsg.getUniqueKey()), e);
                 continue;
             }
 
-            log.info("第{}页第{}条职位信息处理成功！", pageNum ,i+1);
+            log.info("第{}页第{}条职位信息处理成功！", pageNum, i + 1);
             proxyService.defaultRandomSleep();
         }
     }
@@ -170,7 +258,7 @@ public class LagouCrawlService implements CrawlService {
         Request.Builder builder = Request.builder().urlNonParams(positionDetailUrl).addHeaders(proxyService.getCommonHeaderMap(BASE_URL));
         Document document = Jsoup.parse(builder.proxy(proxyService.getRandomProxyAddress()).build().getByJsoup());
         Element nameElement = null;
-        for (int timeout = 60; Objects.isNull(nameElement = document.selectFirst("div[class=job-name]")); timeout+=5) {
+        for (int timeout = 60; Objects.isNull(nameElement = document.selectFirst("div[class=job-name]")); timeout += 5) {
             if (timeout > 100) {
                 throw new RuntimeException("无法加载页面：" + SysConsts.LINE_SEPARATOR + document.html());
             }
@@ -247,14 +335,29 @@ public class LagouCrawlService implements CrawlService {
         for (WebElement aElement : aElements) {
             String text = aElement.getText().trim();
             switch (text) {
-                case "全国站": cityMap.put(CityEnum.ALL.getCode(), aElement); break;
-                case "北京站": cityMap.put(CityEnum.BEIJING.getCode(), aElement); break;
-                case "上海站": cityMap.put(CityEnum.SHANGHAI.getCode(), aElement); break;
-                case "广州站": cityMap.put(CityEnum.GUANGZHOU.getCode(), aElement); break;
-                case "深圳站": cityMap.put(CityEnum.SHENZHEN.getCode(), aElement); break;
-                case "杭州站": cityMap.put(CityEnum.HANGZHOU.getCode(), aElement); break;
-                case "成都站": cityMap.put(CityEnum.CHENGDU.getCode(), aElement); break;
-                default: break;
+                case "全国站":
+                    cityMap.put(CityEnum.ALL.getCode(), aElement);
+                    break;
+                case "北京站":
+                    cityMap.put(CityEnum.BEIJING.getCode(), aElement);
+                    break;
+                case "上海站":
+                    cityMap.put(CityEnum.SHANGHAI.getCode(), aElement);
+                    break;
+                case "广州站":
+                    cityMap.put(CityEnum.GUANGZHOU.getCode(), aElement);
+                    break;
+                case "深圳站":
+                    cityMap.put(CityEnum.SHENZHEN.getCode(), aElement);
+                    break;
+                case "杭州站":
+                    cityMap.put(CityEnum.HANGZHOU.getCode(), aElement);
+                    break;
+                case "成都站":
+                    cityMap.put(CityEnum.CHENGDU.getCode(), aElement);
+                    break;
+                default:
+                    break;
             }
         }
         // 如果为空，或者不在映射集合里面，则点击全国站
@@ -265,9 +368,6 @@ public class LagouCrawlService implements CrawlService {
         cityMap.get(city).click();
     }
 
-    private final Pattern pattern1 = Pattern.compile("^\\d{2}:\\d{2}");
-    private final Pattern pattern2 = Pattern.compile("^\\d{1}");
-    private final Pattern pattern3 = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");
     private Date getPublishTime(String text) {
         Matcher matcher = null;
         // 09:58  发布于拉勾网

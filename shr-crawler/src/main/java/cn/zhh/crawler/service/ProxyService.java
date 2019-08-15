@@ -29,12 +29,12 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ProxyService {
 
-    private final CopyOnWriteArrayList<String> proxyAddressList ;
+    private final CopyOnWriteArrayList<String> proxyAddressList;
 
     private final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
     private final String FILE_PATH = "classpath:static/ProxyAddress.txt";
-    
+
     private final String BASE_XICI_URL = "https://www.xicidaili.com/nn/";
 
     private final int CRAWLER_MAX_PAGE_NUM = 3;
@@ -69,8 +69,8 @@ public class ProxyService {
             String page = Request.builder().urlNonParams(BASE_XICI_URL + pageNum).build().getByJsoup();
             Document document = Jsoup.parse(page);
             Elements dataElements = document.getElementById("ip_list")
-                .getElementsByTag("tbody").first()
-                .select("tr[class=odd]");
+                    .getElementsByTag("tbody").first()
+                    .select("tr[class=odd]");
             // 逐条处理
             for (Element dataElement : dataElements) {
                 Elements tdElements = dataElement.getElementsByTag("td");

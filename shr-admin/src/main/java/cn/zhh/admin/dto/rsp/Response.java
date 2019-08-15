@@ -1,5 +1,6 @@
 package cn.zhh.admin.dto.rsp;
 
+import cn.zhh.common.enums.ErrorEnum;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -36,11 +37,11 @@ public class Response<T> implements Serializable {
     }
 
     public static <T> Response<T> ok() {
-        return new Response<>(SUCCESS, OK, (T)null);
+        return new Response<>(SUCCESS, OK, (T) null);
     }
 
     public static <T> Response<T> ok(String msg) {
-        return new Response<>(SUCCESS, msg, (T)null);
+        return new Response<>(SUCCESS, msg, (T) null);
     }
 
     public static <T> Response<T> ok(T content) {
@@ -51,8 +52,12 @@ public class Response<T> implements Serializable {
         return new Response<>(SUCCESS, msg, content);
     }
 
+    public static <T> Response<T> err(ErrorEnum errorEnum, String msg) {
+        return new Response<>(errorEnum.getCode(), msg, (T) null);
+    }
+
     public static <T> Response<T> err(int code, String msg) {
-        return new Response<>(code, msg, (T)null);
+        return new Response<>(code, msg, (T) null);
     }
 
     public boolean isOk() {

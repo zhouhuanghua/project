@@ -13,8 +13,8 @@ import java.util.Objects;
 @Slf4j
 public enum IsDeletedEnum {
 
-    YES((byte)1, "已删除"),
-    NO((byte)0, "未删除");
+    YES((byte) 1, "已删除"),
+    NO((byte) 0, "未删除");
 
     @Getter
     private Byte code;

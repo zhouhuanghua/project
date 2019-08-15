@@ -14,7 +14,9 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 public class QueryCompanyCommentMsg extends BaseMqMessage implements Serializable {
 
-    /** 公司名称 */
+    /**
+     * 公司名称
+     */
     private String name;
 
     @Override

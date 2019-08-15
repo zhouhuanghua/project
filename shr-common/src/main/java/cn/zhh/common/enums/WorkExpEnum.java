@@ -11,13 +11,14 @@ import java.util.Objects;
  */
 public enum WorkExpEnum {
 
-    ALL((byte)0, "不限"),
-    NONE((byte)1, "无"),
-    ONE2THREE((byte)2, "1-3年"),
-    THREE2FIVE((byte)3, "3-5年"),
-    FIVE2TEN((byte)4, "5-10年"),
-    MORE10((byte)5, "10年以上"),
-    NOT_REQUIRED((byte)6, "不要求");
+    ALL((byte) 0, "不限"),
+    NONE((byte) 1, "无经验"),
+    LESS1((byte) 2, "1年以下"),
+    ONE2THREE((byte) 3, "1-3年"),
+    THREE2FIVE((byte) 4, "3-5年"),
+    FIVE2TEN((byte) 5, "5-10年"),
+    MORE10((byte) 6, "10年以上"),
+    NOT_REQUIRED((byte) 7, "不要求");
 
 
     @Getter

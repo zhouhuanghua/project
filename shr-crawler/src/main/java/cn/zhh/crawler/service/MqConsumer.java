@@ -2,7 +2,6 @@ package cn.zhh.crawler.service;
 
 import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.dto.mq.QueryCompanyCommentMsg;
-import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
 import cn.zhh.common.util.JsonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
@@ -28,32 +27,8 @@ public class MqConsumer {
     private ObjectMapper objectMapper;
 
     /**
-     * 智联消费搜索职位信息消息
-     *
-     * @param messageBytes
-     * @param headers
-     * @param channel
-     * @throws Exception
-     */
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = MqConsts.SEARCH_POSITION_INFO_ZHILIAN_QUEUE_NAME, durable = "true"),
-            exchange = @Exchange(name = MqConsts.SEARCH_POSITION_INFO_TOPIC_EXCHANGE_NAME, type = "topic"),
-            key = ""
-    ))
-    @RabbitHandler
-    public void consumeSearchPositionInfoMsg(byte[] messageBytes, @Headers Map<String, Object> headers, Channel channel) throws Exception {
-        // 转化
-        SearchPositionInfoMsg searchPositionInfoMsg = JsonUtils.bytes2Pojo(messageBytes, SearchPositionInfoMsg.class);
-
-        // todo
-
-        // 手动签收消息
-        Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
-        channel.basicAck(deliveryTag, false);
-    }
-
-    /**
      * 消费查询职位评论消息
+     *
      * @param messageBytes
      * @param headers
      * @param channel

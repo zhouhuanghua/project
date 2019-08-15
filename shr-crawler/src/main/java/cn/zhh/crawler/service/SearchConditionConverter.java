@@ -14,13 +14,8 @@ import java.util.Objects;
  */
 class SearchConditionConverter {
 
-    static enum SITE_NAME {
-        ZHILIAN, BOSS
-    }
-
     private static final String ZHILIAN = SITE_NAME.ZHILIAN.name();
     private static final String BOSS = SITE_NAME.BOSS.name();
-
     private static Map<Byte, Map<String, String>> CITY_MAP = new HashMap<>(8);
 
     // 初始化数据
@@ -40,5 +35,9 @@ class SearchConditionConverter {
             return CITY_MAP.get(CityEnum.ALL.getCode()).get(siteNameEnum.name());
         }
         return CITY_MAP.get(city).get(siteNameEnum);
+    }
+
+    static enum SITE_NAME {
+        ZHILIAN, BOSS
     }
 }

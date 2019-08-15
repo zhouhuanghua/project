@@ -15,9 +15,9 @@ public interface PositionService extends BaseService<Position, Long> {
      * 根据id查询职位详情
      *
      * @param id 职位id
-     * @return Map
-     *              ——position：职位信息
-     *              ——company：公司信息
+     * @return PositionDetailRsp
+     * ——position：职位信息
+     * ——company：公司信息
      */
     PositionDetailRsp getDetailById(Long id);
 }

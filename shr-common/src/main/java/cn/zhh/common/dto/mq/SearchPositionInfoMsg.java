@@ -14,10 +14,14 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 public class SearchPositionInfoMsg extends BaseMqMessage implements Serializable {
 
-    /** 内容 */
+    /**
+     * 内容
+     */
     private String content;
 
-    /** 城市 */
+    /**
+     * 城市
+     */
     private Byte city;
 
     @Override

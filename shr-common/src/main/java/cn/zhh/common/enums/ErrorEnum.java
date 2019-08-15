@@ -17,16 +17,13 @@ public enum ErrorEnum {
     DB_UPDATE_FAIL(-7, "db update fail"),
     ERROR_TO_JSON(-8, "error to json"),
     ERROR_FROM_JSON(-9, "error from json"),
-    BAD_REQUEST(-10, "bad request")
-    ;
-
-    @Getter
-    private int code;
-
-    @Getter
-    private String message;
+    BAD_REQUEST(-10, "bad request");
 
     private static final int BASE_NUM = 10_000;
+    @Getter
+    private int code;
+    @Getter
+    private String message;
 
     private ErrorEnum(int code, String message) {
         this.code = BASE_NUM + code;

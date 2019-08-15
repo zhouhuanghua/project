@@ -61,7 +61,7 @@ public class PositionServiceImpl implements PositionService {
         // 公司
         Company company = companyService.getById(position.getCompanyId());
         PositionDetailRsp.CompanyVO companyVo = new PositionDetailRsp.CompanyVO();
-        BeanUtils.copyProperties(company, company);
+        BeanUtils.copyProperties(company, companyVo);
         // 公司评论 todo
         companyVo.setCommentList(null);
 

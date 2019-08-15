@@ -11,10 +11,10 @@ import java.util.Objects;
  */
 public enum PositionSourceEnum {
 
-    ZHILIAN((byte)1, "智联"),
-    LAGOU((byte)2, "拉勾"),
-    BOSS((byte)3, "boss直聘"),
-    UNKNOW((byte)0, "未知");
+    ZHILIAN((byte) 1, "智联"),
+    LAGOU((byte) 2, "拉勾"),
+    BOSS((byte) 3, "boss直聘"),
+    UNKNOW((byte) 0, "未知");
 
     @Getter
     private Byte code;

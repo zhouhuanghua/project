@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author Zhou Huanghua
  */
 @Data
-public class PageReq implements Serializable {
+public class PageReq implements ValidateReq, Serializable {
 
     @ApiModelProperty(name = "页码", example = "1", required = true)
     @NotNull(message = "页码不能为空")

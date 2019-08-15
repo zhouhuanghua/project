@@ -15,6 +15,6 @@ public class NashornUtils {
     private static final ScriptEngine SCRIPT_ENGINE = new ScriptEngineManager().getEngineByName(ENGINE_NAME);
 
     public static ScriptEngine getScriptEngine() {
-       return SCRIPT_ENGINE;
+        return SCRIPT_ENGINE;
     }
 }

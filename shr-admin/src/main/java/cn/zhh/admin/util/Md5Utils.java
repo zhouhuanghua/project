@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author Zhou Huanghua
  */
-public class MD5Utils {
+public class Md5Utils {
 
     /**
      * 获取该输入流的MD5值

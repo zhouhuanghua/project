@@ -35,4 +35,10 @@ public class PositionSearchServiceTest {
         positionSearchService.deleteById(null);
     }
 
+    @Test
+    public void refresh() {
+        positionSearchService.refreshDb2Es();
+    }
+
+
 }

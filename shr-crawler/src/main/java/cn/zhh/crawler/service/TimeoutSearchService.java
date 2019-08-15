@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 @Component
 @Slf4j
-public class TimingSearchService {
+public class TimeoutSearchService {
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -39,17 +39,18 @@ public class TimingSearchService {
         // 爬虫服务
         String[] beanNames = applicationContext.getBeanNamesForType(CrawlService.class);
         if (Objects.isNull(beanNames) || beanNames.length == 0) {
+            log.warn("没有找到爬虫服务！");
             return;
         }
         crawlServiceSet = Arrays.stream(beanNames)
-                .map(n -> (CrawlService)applicationContext.getBean(n))
+                .map(n -> (CrawlService) applicationContext.getBean(n))
                 .collect(Collectors.toSet());
-        // 城市
+        // 城市（从枚举类获取）
         cityList = Arrays.stream(CityEnum.values())
-            .filter(cityEnum -> !Objects.equals(cityEnum.getCode(), CityEnum.ALL.getCode()))
-            .map(CityEnum::getCode)
-            .collect(Collectors.toSet());
-        // 职位
+                .filter(cityEnum -> !Objects.equals(cityEnum.getCode(), CityEnum.ALL.getCode()))
+                .map(CityEnum::getCode)
+                .collect(Collectors.toSet());
+        // 职位（到拉勾网去爬）
         String pageHtml = Request.builder().urlNonParams("https://www.lagou.com/")
                 .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36")
                 .build()
@@ -57,13 +58,13 @@ public class TimingSearchService {
         Document document = Jsoup.parse(pageHtml);
         Elements aElements = document.getElementById("sidebar").getElementsByTag("a");
         positionList = aElements.stream()
-            .map(a -> a.select("h3"))
-            .flatMap(Elements::stream)
-            .map(Element::text)
-            .collect(Collectors.toSet());
+                .map(a -> a.select("h3"))
+                .flatMap(Elements::stream)
+                .map(Element::text)
+                .collect(Collectors.toSet());
     }
 
-//    @Scheduled(cron = "* * 0/3 * * ?")
+    //    @Scheduled(cron = "* * 0/3 * * ?")
     public void timeout() {
         log.info("定时任务-搜索职位 开始运行...");
         try {
@@ -78,6 +79,7 @@ public class TimingSearchService {
             msg.setContent(position);
             for (Byte city : cityList) {
                 msg.setCity(city);
+                log.info("定时任务开始爬取，职位：{}，城市：{}", msg.getContent(), msg.getCity());
                 for (CrawlService crawlService : crawlServiceSet) {
                     crawlService.syncCrawl(msg);
                 }

@@ -4,7 +4,11 @@ import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
+import cn.zhh.common.enums.DevelopmentStageEnum;
+import cn.zhh.common.enums.EducationEnum;
 import cn.zhh.common.enums.PositionSourceEnum;
+import cn.zhh.common.enums.WorkExpEnum;
+import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.crawler.util.Request;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +39,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class BossCrawlService implements CrawlService {
 
+    private final String BASE_URL = "https://www.zhipin.com/";
     @Autowired
     private MqProducer mqProducer;
     @Autowired
     private ProxyService proxyService;
-    private final String BASE_URL = "https://www.zhipin.com/";
 
     @Override
     public void crawl(SearchPositionInfoMsg searchCondition) throws Exception {
@@ -58,7 +62,7 @@ public class BossCrawlService implements CrawlService {
                 && ++pageNum < 11; ) {
             proxyService.sleep(5, TimeUnit.SECONDS);
             document = Jsoup.parse(queryBuilder.proxy(proxyService.getRandomProxyAddress())
-                .addQueryStringParameter("page", String.valueOf(pageNum)).build().getByJsoup());
+                    .addQueryStringParameter("page", String.valueOf(pageNum)).build().getByJsoup());
             handleEveryPage(document, pageNum);
         }
     }
@@ -86,10 +90,99 @@ public class BossCrawlService implements CrawlService {
     @Async("asyncServiceExecutor")
     public void syncCrawl(SearchPositionInfoMsg searchCondition) {
         try {
+            log.info("boss爬虫服务异步启动，职位：{}，城市：{}", searchCondition.getContent(), searchCondition.getCity());
             this.crawl(searchCondition);
         } catch (Exception e) {
             log.error("异步执行boss爬虫服务异常！", e);
         }
+    }
+
+    @Override
+    public void convert(PositionInfoMsg positionInfoMsg) {
+        // 工作经验转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
+            switch (workExp) {
+                case "经验不限":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NOT_REQUIRED.getDescription());
+                    break;
+                case "应届生":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NONE.getDescription());
+                    break;
+                case "1年以内":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.LESS1.getDescription());
+                    break;
+                case "1-3年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.ONE2THREE.getDescription());
+                    break;
+                case "3-5年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.THREE2FIVE.getDescription());
+                    break;
+                case "5-10年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.FIVE2TEN.getDescription());
+                    break;
+                case "10年以上":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.MORE10.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NOT_REQUIRED.getDescription());
+                    break;
+            }
+        });
+        // 学历转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
+            switch (workExp) {
+                case "不限":
+                    positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
+                    break;
+                case "大专":
+                    positionInfoMsg.setEducation(EducationEnum.JUNIOR_COLLEGE.getDescription());
+                    break;
+                case "本科":
+                    positionInfoMsg.setEducation(EducationEnum.UNDERGRADUATE.getDescription());
+                    break;
+                case "硕士":
+                    positionInfoMsg.setEducation(EducationEnum.MASTER.getDescription());
+                    break;
+                case "博士":
+                    positionInfoMsg.setEducation(EducationEnum.DOCTOR.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
+                    break;
+            }
+        });
+        // 公司发展阶段转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getCompanyDevelopmentalStage(), developmentalStage -> {
+            switch (developmentalStage) {
+                case "不需要融资":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.NOT_NEED.getDescription());
+                    break;
+                case "未融资":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.NOT.getDescription());
+                    break;
+                case "天使轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.ANGEL.getDescription());
+                    break;
+                case "A轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.A.getDescription());
+                    break;
+                case "B轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.B.getDescription());
+                    break;
+                case "C轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.C.getDescription());
+                    break;
+                case "D轮及以上":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.D.getDescription());
+                    break;
+                case "已上市":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.LISTED.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setCompanyDevelopmentalStage("");
+                    break;
+            }
+        });
     }
 
     private void handleSearchCondition(Request.Builder queryBuilder, SearchPositionInfoMsg searchCondition) {
@@ -98,7 +191,7 @@ public class BossCrawlService implements CrawlService {
         // 城市
         Byte city = searchCondition.getCity();
         queryBuilder.addQueryStringParameter("city", SearchConditionConverter.getCity(city,
-            SearchConditionConverter.SITE_NAME.BOSS));
+                SearchConditionConverter.SITE_NAME.BOSS));
     }
 
     private void handleEveryPage(Document document, int pageNum) {
@@ -130,7 +223,7 @@ public class BossCrawlService implements CrawlService {
 
             // 推送MQ
             try {
-                log.info("开始推送第{}页第{}条职位信息...", pageNum, i+1);
+                log.info("开始推送第{}页第{}条职位信息...", pageNum, i + 1);
                 mqProducer.sendPositionInfoMsg(positionInfoMsg);
             } catch (Exception e) {
                 log.error("推送职位信息消息到MQ异常！", e);

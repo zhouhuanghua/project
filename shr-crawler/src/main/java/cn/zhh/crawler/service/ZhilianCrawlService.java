@@ -4,8 +4,7 @@ import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
-import cn.zhh.common.enums.ErrorEnum;
-import cn.zhh.common.enums.PositionSourceEnum;
+import cn.zhh.common.enums.*;
 import cn.zhh.common.util.BusinessException;
 import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.crawler.util.Request;
@@ -40,12 +39,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class ZhilianCrawlService implements CrawlService {
 
+    private final String SEARCH_URL = "https://fe-api.zhaopin.com/c/i/sou";
+    private final String PAGE_SIZE = "100";
     @Autowired
     private MqProducer mqProducer;
     @Autowired
     private ProxyService proxyService;
-    private final String SEARCH_URL = "https://fe-api.zhaopin.com/c/i/sou";
-    private final String PAGE_SIZE = "100";
 
     @Override
     public void crawl(SearchPositionInfoMsg searchCondition) throws Exception {
@@ -53,9 +52,9 @@ public class ZhilianCrawlService implements CrawlService {
         Map<String, String> paramsMap = buildParams(searchCondition);
         log.info("开始搜索职位，请求参数：{}", paramsMap);
         String rspStr = Request.builder().urlNonParams(SEARCH_URL).addQueryStringParameters(paramsMap)
-            .addHeaders(proxyService.getCommonHeaderMap(SEARCH_URL))
-            .build()
-            .getByHttpClient();
+                .addHeaders(proxyService.getCommonHeaderMap(SEARCH_URL))
+                .build()
+                .getByHttpClient();
         JSONObject response = JSONObject.parseObject(rspStr);
         if (!Objects.equals(response.getInteger("code"), 200)) {
             throw new BusinessException(ErrorEnum.BAD_REQUEST, "请求响应失败！");
@@ -98,10 +97,78 @@ public class ZhilianCrawlService implements CrawlService {
     @Async("asyncServiceExecutor")
     public void syncCrawl(SearchPositionInfoMsg searchCondition) {
         try {
+            log.info("智联爬虫服务异步启动，职位：{}，城市：{}", searchCondition.getContent(), searchCondition.getCity());
             this.crawl(searchCondition);
         } catch (Exception e) {
             log.error("异步执行智联爬虫服务异常！", e);
         }
+    }
+
+    @Override
+    public void convert(PositionInfoMsg positionInfoMsg) {
+        // 工作经验转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
+            switch (workExp) {
+                case "不限":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NOT_REQUIRED.getDescription());
+                    break;
+                case "无经验":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NONE.getDescription());
+                    break;
+                case "1年以下":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.LESS1.getDescription());
+                    break;
+                case "1-3年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.ONE2THREE.getDescription());
+                    break;
+                case "3-5年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.THREE2FIVE.getDescription());
+                    break;
+                case "5-10年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.FIVE2TEN.getDescription());
+                    break;
+                case "10年以上":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.MORE10.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NOT_REQUIRED.getDescription());
+                    break;
+            }
+        });
+        // 学历转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
+            switch (workExp) {
+                case "学历不限":
+                    positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
+                    break;
+                case "大专":
+                    positionInfoMsg.setEducation(EducationEnum.JUNIOR_COLLEGE.getDescription());
+                    break;
+                case "本科":
+                    positionInfoMsg.setEducation(EducationEnum.UNDERGRADUATE.getDescription());
+                    break;
+                case "硕士":
+                    positionInfoMsg.setEducation(EducationEnum.MASTER.getDescription());
+                    break;
+                case "博士":
+                    positionInfoMsg.setEducation(EducationEnum.DOCTOR.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
+                    break;
+            }
+        });
+        // 公司发展阶段转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getCompanyDevelopmentalStage(), developmentalStage -> {
+            switch (developmentalStage) {
+                case "不需要融资":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.NOT_NEED.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setCompanyDevelopmentalStage("");
+                    break;
+            }
+        });
     }
 
     private Map<String, String> buildParams(SearchPositionInfoMsg searchCondition) {
@@ -126,46 +193,46 @@ public class ZhilianCrawlService implements CrawlService {
     private void handleResults(JSONArray results) {
         AtomicInteger index = new AtomicInteger(1);
         results.stream()
-            .map(value -> {
-                if (value instanceof JSONObject) {
-                    return (JSONObject)value;
-                } else {
-                    return value instanceof Map ? new JSONObject((Map)value) : (JSONObject) JSON.toJSON(value);
-                }
-            })
-            .forEach(result -> {
-                PositionInfoMsg positionInfoMsg = new PositionInfoMsg();
-                positionInfoMsg.setUniqueKey(result.getString("number"));
-                positionInfoMsg.setName(result.getString("jobName"));
-                positionInfoMsg.setSource(PositionSourceEnum.ZHILIAN.getCode());
-                positionInfoMsg.setSalary(result.getString("salary"));
-                positionInfoMsg.setCity(result.getJSONObject("city").getString("display"));
-                positionInfoMsg.setWorkExp(result.getJSONObject("workingExp").getString("name"));
-                positionInfoMsg.setEducation(result.getJSONObject("eduLevel").getString("name"));
-                positionInfoMsg.setWelfare(getWelfare(result.getJSONArray("welfare")));
-                positionInfoMsg.setLabel(getPositionLabel(result.getJSONObject("positionLabel")));
-                positionInfoMsg.setPublishTime(result.getDate("updateDate"));
-                positionInfoMsg.setUrl(result.getString("positionURL"));
-                JSONObject company = result.getJSONObject("company");
-                positionInfoMsg.setCompanyName(company.getString("name"));
-                positionInfoMsg.setCompanyLogo(result.getString("companyLogo"));
-                positionInfoMsg.setCompanyScale(Optional.ofNullable(company.getJSONObject("size").getString("name")).orElse(""));
+                .map(value -> {
+                    if (value instanceof JSONObject) {
+                        return (JSONObject) value;
+                    } else {
+                        return value instanceof Map ? new JSONObject((Map) value) : (JSONObject) JSON.toJSON(value);
+                    }
+                })
+                .forEach(result -> {
+                    PositionInfoMsg positionInfoMsg = new PositionInfoMsg();
+                    positionInfoMsg.setUniqueKey(result.getString("number"));
+                    positionInfoMsg.setName(result.getString("jobName"));
+                    positionInfoMsg.setSource(PositionSourceEnum.ZHILIAN.getCode());
+                    positionInfoMsg.setSalary(result.getString("salary"));
+                    positionInfoMsg.setCity(result.getJSONObject("city").getString("display"));
+                    positionInfoMsg.setWorkExp(result.getJSONObject("workingExp").getString("name"));
+                    positionInfoMsg.setEducation(result.getJSONObject("eduLevel").getString("name"));
+                    positionInfoMsg.setWelfare(getWelfare(result.getJSONArray("welfare")));
+                    positionInfoMsg.setLabel(getPositionLabel(result.getJSONObject("positionLabel")));
+                    positionInfoMsg.setPublishTime(result.getDate("updateDate"));
+                    positionInfoMsg.setUrl(result.getString("positionURL"));
+                    JSONObject company = result.getJSONObject("company");
+                    positionInfoMsg.setCompanyName(company.getString("name"));
+                    positionInfoMsg.setCompanyLogo(result.getString("companyLogo"));
+                    positionInfoMsg.setCompanyScale(Optional.ofNullable(company.getJSONObject("size").getString("name")).orElse(""));
 
-                // 分析详情页
-                try {
-                    analysisPositionDetail(positionInfoMsg.getUrl(), positionInfoMsg);
-                } catch (Exception e) {
-                    log.error("请求解析职位详情异常！", e);
-                }
+                    // 分析详情页
+                    try {
+                        analysisPositionDetail(positionInfoMsg.getUrl(), positionInfoMsg);
+                    } catch (Exception e) {
+                        log.error("请求解析职位详情异常！", e);
+                    }
 
-                // 推送MQ
-                try {
-                    log.info("推送第{}条职位数据到MQ，number={}", index.getAndIncrement(), positionInfoMsg.getUniqueKey());
-                    mqProducer.sendPositionInfoMsg(positionInfoMsg);
-                } catch (Exception e) {
-                    log.error("推送职位信息消息到MQ异常！", e);
-                }
-            });
+                    // 推送MQ
+                    try {
+                        log.info("推送第{}条职位数据到MQ，number={}", index.getAndIncrement(), positionInfoMsg.getUniqueKey());
+                        mqProducer.sendPositionInfoMsg(positionInfoMsg);
+                    } catch (Exception e) {
+                        log.error("推送职位信息消息到MQ异常！", e);
+                    }
+                });
     }
 
     private String getWelfare(JSONArray jsonArray) {
@@ -194,14 +261,14 @@ public class ZhilianCrawlService implements CrawlService {
 
         // 访问详情页
         String htmlPage = Request.builder().urlNonParams(positionDetailUrl)
-            .addHeaders(proxyService.getCommonHeaderMap(SEARCH_URL)).build().getByHttpClient();
+                .addHeaders(proxyService.getCommonHeaderMap(SEARCH_URL)).build().getByHttpClient();
 
         // 处理反爬
         htmlPage = handlePreventCrawl(htmlPage);
 
         Document document = Jsoup.parse(htmlPage);
 
-    // start---------职位描述
+        // start---------职位描述
         Element describtionElement = document.selectFirst("div[class=describtion]");
         StringBuilder describtion = new StringBuilder();
         describtion.append("职能要求：").append(SysConsts.LINE_SEPARATOR);
@@ -225,7 +292,7 @@ public class ZhilianCrawlService implements CrawlService {
             });
         });
         positionInfoMsg.setDescription(describtion.toString());
-    // end---------职位描述
+        // end---------职位描述
 
         // 工作地址
         OptionalOperationUtils.consumeIfNonNull(document.selectFirst("span[class=job-address__content-text]"), jobAddressElement -> {

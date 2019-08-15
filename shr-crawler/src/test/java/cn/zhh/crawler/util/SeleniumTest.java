@@ -76,24 +76,24 @@ public class SeleniumTest {
         WebElement positionListWebElement = driver.findElement(By.id("s_position_list"));
 
         positionListWebElement.findElement(By.cssSelector("ul[class=item_con_list]"))
-            .findElements(By.tagName("li"))
-            .forEach(positionWebElement -> {
-                String href = positionListWebElement.findElement(By.cssSelector("a[class=position_link]")).getAttribute("href");
-                try {
-                    Document document = Jsoup.connect(href).get();
-                    System.out.println(document);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return;
-            });
+                .findElements(By.tagName("li"))
+                .forEach(positionWebElement -> {
+                    String href = positionListWebElement.findElement(By.cssSelector("a[class=position_link]")).getAttribute("href");
+                    try {
+                        Document document = Jsoup.connect(href).get();
+                        System.out.println(document);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                });
     }
 
     @Test
     public void test3() {
         WebDriver driver = new JBrowserDriver(Settings.builder()
-            .timezone(Timezone.ASIA_SHANGHAI)
-            .userAgent(UserAgent.CHROME).build());
+                .timezone(Timezone.ASIA_SHANGHAI)
+                .userAgent(UserAgent.CHROME).build());
         // says 120 but is really 0
 //        driver.manage().timeouts().pageLoadTimeout(120, TimeUnit.SECONDS);
         driver.get("https://www.baidu.com");

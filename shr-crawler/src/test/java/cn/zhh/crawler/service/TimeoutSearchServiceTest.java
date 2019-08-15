@@ -8,10 +8,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-public class TimingSearchServiceTest {
+public class TimeoutSearchServiceTest {
 
     @Autowired
-    private TimingSearchService searchService;
+    private TimeoutSearchService searchService;
 
     @Test
     public void timeout() throws Exception {

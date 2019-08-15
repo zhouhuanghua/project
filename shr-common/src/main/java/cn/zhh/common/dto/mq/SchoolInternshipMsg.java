@@ -51,6 +51,11 @@ public class SchoolInternshipMsg extends BaseMqMessage implements Serializable {
     /* 岗位信息 */
     private List<JobMsg> jobInfo;
 
+    @Override
+    public String messageIdPrefix() {
+        return "SIM";
+    }
+
     @Data
     public static class JobMsg {
         /* 岗位链接 */
@@ -67,10 +72,5 @@ public class SchoolInternshipMsg extends BaseMqMessage implements Serializable {
         private String jobIntroduce;
         /* 岗位描述 */
         private String jobDescription;
-    }
-
-    @Override
-    public String messageIdPrefix() {
-        return "SIM";
     }
 }

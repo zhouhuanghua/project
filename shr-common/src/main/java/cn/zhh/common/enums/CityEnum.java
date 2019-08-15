@@ -11,13 +11,13 @@ import java.util.Objects;
  */
 public enum CityEnum {
 
-    ALL((byte)0, "全国"),
-    BEIJING((byte)1, "北京"),
-    SHANGHAI((byte)2, "上海"),
-    GUANGZHOU((byte)3, "广州"),
-    SHENZHEN((byte)4, "深圳"),
-    HANGZHOU((byte)5, "杭州"),
-    CHENGDU((byte)6, "成都");
+    ALL((byte) 0, "全国"),
+    BEIJING((byte) 1, "北京"),
+    SHANGHAI((byte) 2, "上海"),
+    GUANGZHOU((byte) 3, "广州"),
+    SHENZHEN((byte) 4, "深圳"),
+    HANGZHOU((byte) 5, "杭州"),
+    CHENGDU((byte) 6, "成都");
 
 
     @Getter

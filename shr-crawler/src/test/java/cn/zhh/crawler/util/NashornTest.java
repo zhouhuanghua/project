@@ -16,7 +16,7 @@ public class NashornTest {
     public void test() throws Exception {
         ScriptEngine scriptEngine = NashornUtils.getScriptEngine();
         scriptEngine.eval("function f(name) { return name }");
-        Invocable invocable = (Invocable)scriptEngine;
+        Invocable invocable = (Invocable) scriptEngine;
         Object result = invocable.invokeFunction("f", "Peter Parker");
         System.out.println(result);
     }

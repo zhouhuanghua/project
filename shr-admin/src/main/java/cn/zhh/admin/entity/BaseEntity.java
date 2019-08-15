@@ -31,30 +31,30 @@ public abstract class BaseEntity {
     private Byte isDeleted;
 
     public void setDefaultValue() {
-        List<Field> fieldList = new ArrayList<>() ;
+        List<Field> fieldList = new ArrayList<>();
         Class tempClass = this.getClass();
         while (Objects.nonNull(tempClass)) {
-            fieldList.addAll(Arrays.asList(tempClass .getDeclaredFields()));
+            fieldList.addAll(Arrays.asList(tempClass.getDeclaredFields()));
             tempClass = tempClass.getSuperclass();
         }
         fieldList.stream()
-            .filter(f -> f.isAnnotationPresent(Column.class))
-            .forEach(field -> {
-                field.setAccessible(true);
-                try {
-                    if (Objects.nonNull(field.get(this))) {
-                        return;
+                .filter(f -> f.isAnnotationPresent(Column.class))
+                .forEach(field -> {
+                    field.setAccessible(true);
+                    try {
+                        if (Objects.nonNull(field.get(this))) {
+                            return;
+                        }
+                        Class<?> fieldType = field.getType();
+                        if (Objects.equals(fieldType, Date.class)) {
+                            field.set(this, new Date());
+                        }
+                        if (Objects.equals(fieldType, String.class)) {
+                            field.set(this, "");
+                        }
+                    } catch (IllegalAccessException e) {
+                        throw new BusinessException(ErrorEnum.BAD_REQUEST, e);
                     }
-                    Class<?> fieldType = field.getType();
-                    if (Objects.equals(fieldType, Date.class)) {
-                        field.set(this, new Date());
-                    }
-                    if (Objects.equals(fieldType, String.class)) {
-                        field.set(this, "");
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new BusinessException(ErrorEnum.BAD_REQUEST, e);
-                }
-            });
+                });
     }
 }

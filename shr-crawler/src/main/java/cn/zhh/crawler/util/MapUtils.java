@@ -24,8 +24,8 @@ public class MapUtils {
         }
         Map<String, T> linkedHashMap = new LinkedHashMap<>(args.length / 2);
         for (int i = 0, end = args.length - 1; i < end; i += 2) {
-            String name = (String)args[i];
-            T value = args[i+1];
+            String name = (String) args[i];
+            T value = args[i + 1];
             linkedHashMap.put(name, value);
         }
         return linkedHashMap;

@@ -102,7 +102,7 @@ public interface BaseService<T extends BaseEntity, ID> {
      * 建立Example对象
      *
      * @param entityClass Example对应实体的Class对象
-     * @param args 属性键值对：如("name", "张三", "age", "28")，一个name一个value依次填写
+     * @param args        属性键值对：如("name", "张三", "age", "28")，一个name一个value依次填写
      * @return
      */
     default Example<T> buildExample(Class<T> entityClass, Object... args) {
@@ -115,7 +115,7 @@ public interface BaseService<T extends BaseEntity, ID> {
         // 设置属性
         for (int i = 0, end = args.length - 1; i < end; i += 2) {
             String fieldName = (String) args[i];
-            Object fieldValue = args[i+1];
+            Object fieldValue = args[i + 1];
             PropertyDescriptor propertyDescriptor = org.springframework.beans.BeanUtils.getPropertyDescriptor(entityClass, fieldName);
             Method writeMethod = propertyDescriptor.getWriteMethod();
             if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())) {

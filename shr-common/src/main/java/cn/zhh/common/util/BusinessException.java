@@ -11,7 +11,8 @@ import lombok.Setter;
  */
 public class BusinessException extends RuntimeException {
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private int code;
 
     public BusinessException(ErrorEnum errorEnum) {
