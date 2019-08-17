@@ -8,6 +8,8 @@ import cn.zhh.admin.entity.Company;
 import cn.zhh.admin.entity.Position;
 import cn.zhh.admin.service.db.CompanyService;
 import cn.zhh.admin.service.db.PositionService;
+import cn.zhh.common.enums.DevelopmentStageEnum;
+import cn.zhh.common.enums.EducationEnum;
 import cn.zhh.common.enums.IsDeletedEnum;
 import cn.zhh.common.enums.WorkExpEnum;
 import cn.zhh.common.util.BeanUtils;
@@ -54,34 +56,44 @@ public class PositionSearchServiceImpl implements PositionSearchService {
         // 内容搜索职位名称或者公司名称
         String content = positionSearchReq.getContent();
         if (StringUtils.hasText(content)) {
-            boolQueryBuilder.must(QueryBuilders.multiMatchQuery(content, "name", "companyName"));
+            BoolQueryBuilder contentQueryBuilder = QueryBuilders.boolQuery().should(QueryBuilders.fuzzyQuery("name", content))
+                    .should(QueryBuilders.fuzzyQuery("companyName", content));
+            boolQueryBuilder.must(contentQueryBuilder);
         }
         // 城市
         OptionalOperationUtils.consumeIfNotBlank(positionSearchReq.getCity(), city -> {
-            boolQueryBuilder.must(QueryBuilders.matchQuery("city", city));
+            boolQueryBuilder.must(QueryBuilders.termQuery("city.keyword", city));
         });
         // 工作经验
-        OptionalOperationUtils.consumeIfNotEmpty(positionSearchReq.getWorkExpList(), workExpCodeList -> {
+        OptionalOperationUtils.consumeIfNotEmpty(positionSearchReq.getWorkExpList(), workExpList -> {
             BoolQueryBuilder workExpQuery = QueryBuilders.boolQuery();
-            for (Byte workExpCode : workExpCodeList) {
-                workExpQuery.should(QueryBuilders.termQuery("workExp", WorkExpEnum.code2desc(workExpCode)));
+            for (Byte workExp : workExpList) {
+                OptionalOperationUtils.consumeIfNonNull(WorkExpEnum.code2desc(workExp), value -> {
+                    workExpQuery.should(QueryBuilders.termQuery("workExp.keyword", value));
+                });
             }
             boolQueryBuilder.must(workExpQuery);
         });
         // 学历
-        /*final Byte educationCode = positionSearchReq.getEducation();
-        if (Objects.nonNull(educationCode) && !Objects.equals(educationCode, EducationEnum.ALL.getCode())) {
-            OptionalOperationUtils.consumeIfNonNull(EducationEnum.code2desc(educationCode), educationDesc -> {
-                boolQueryBuilder.must(QueryBuilders.termQuery("education", educationDesc));
-            });
-        }
+        OptionalOperationUtils.consumeIfNotEmpty(positionSearchReq.getEducationList(), educationList -> {
+            BoolQueryBuilder educationQuery = QueryBuilders.boolQuery();
+            for (Byte education : educationList) {
+                OptionalOperationUtils.consumeIfNonNull(EducationEnum.code2desc(education), value -> {
+                    educationQuery.should(QueryBuilders.termQuery("education.keyword", value));
+                });
+            }
+            boolQueryBuilder.must(educationQuery);
+        });
         // 公司发展阶段
-        final Byte developmentStageCode = positionSearchReq.getCompanyDevelopmentStage();
-        if (Objects.nonNull(developmentStageCode) && !Objects.equals(developmentStageCode, DevelopmentStageEnum.ALL.getCode())) {
-            OptionalOperationUtils.consumeIfNonNull(EducationEnum.code2desc(developmentStageCode), developmentStageDesc -> {
-                boolQueryBuilder.must(QueryBuilders.termQuery("companyDevelopmentStage", developmentStageDesc));
-            });
-        }*/
+        OptionalOperationUtils.consumeIfNotEmpty(positionSearchReq.getCompanyDevelopmentStageList(), developmentStageList -> {
+            BoolQueryBuilder developmentStageQuery = QueryBuilders.boolQuery();
+            for (Byte developmentStage : developmentStageList) {
+                OptionalOperationUtils.consumeIfNonNull(DevelopmentStageEnum.code2desc(developmentStage), value -> {
+                    developmentStageQuery.should(QueryBuilders.termQuery("companyDevelopmentStage.keyword", value));
+                });
+            }
+            boolQueryBuilder.must(developmentStageQuery);
+        });
         // 分页
         PageRequest pageRequest = PageRequest.of(positionSearchReq.getPageNum() - 1, positionSearchReq.getPageSize(),
                 Sort.by(Sort.Order.desc("publishTime")));
@@ -122,6 +134,4 @@ public class PositionSearchServiceImpl implements PositionSearchService {
 
         log.info("将DB数据刷到ES结束！");
     }
-
-
 }
