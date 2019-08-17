@@ -33,7 +33,7 @@ public class PositionController implements PositionApi {
     }
 
     @Override
-    @GetMapping("/{id:[\\d+]}")
+    @GetMapping("/{id:[\\d]+}")
     public Response<PositionDetailRsp> getDetailById(@PathVariable Long id) {
         return Response.ok(positionService.getDetailById(id));
     }
