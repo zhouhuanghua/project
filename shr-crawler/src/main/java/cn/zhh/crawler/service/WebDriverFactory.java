@@ -6,10 +6,12 @@ import com.machinepublishers.jbrowserdriver.Timezone;
 import com.machinepublishers.jbrowserdriver.UserAgent;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +34,9 @@ public class WebDriverFactory {
         // Chrome驱动
         if (Objects.equals("chrome", driverType) && StringUtils.hasText(chromeDriverPath)) {
             System.setProperty("webdriver.chrome.driver", chromeDriverPath);
-            webDriver = new ChromeDriver();
+            ChromeOptions chromeOptions = new ChromeOptions();
+            chromeOptions.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
+            webDriver = new ChromeDriver(chromeOptions);
         }
         // JBrowser驱动
         else {
@@ -40,8 +44,8 @@ public class WebDriverFactory {
                     .timezone(Timezone.ASIA_SHANGHAI)
                     .userAgent(UserAgent.CHROME).build());
         }
-        webDriver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
-        webDriver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        webDriver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
+        webDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
         return webDriver;
     }
 }

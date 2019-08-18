@@ -22,5 +22,5 @@ spring:
 selenium:
   webdriver:
     # chrome or jbrowser
-    type: jbrowser
+    type: chrome
     chrome-driver-path: src/main/resources/static/chromedriver.exe
