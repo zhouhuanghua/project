@@ -56,8 +56,9 @@ public class PositionSearchServiceImpl implements PositionSearchService {
         // 内容搜索职位名称或者公司名称
         String content = positionSearchReq.getContent();
         if (StringUtils.hasText(content)) {
-            BoolQueryBuilder contentQueryBuilder = QueryBuilders.boolQuery().should(QueryBuilders.fuzzyQuery("name", content))
-                    .should(QueryBuilders.fuzzyQuery("companyName", content));
+            BoolQueryBuilder contentQueryBuilder = QueryBuilders.boolQuery()
+                    .should(QueryBuilders.fuzzyQuery("name", content).maxExpansions(10))
+                    .should(QueryBuilders.fuzzyQuery("companyName", content).maxExpansions(15));
             boolQueryBuilder.must(contentQueryBuilder);
         }
         // 城市
