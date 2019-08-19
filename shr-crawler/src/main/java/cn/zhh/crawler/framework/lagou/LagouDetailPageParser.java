@@ -2,7 +2,11 @@ package cn.zhh.crawler.framework.lagou;
 
 import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
+import cn.zhh.common.enums.DevelopmentStageEnum;
+import cn.zhh.common.enums.EducationEnum;
 import cn.zhh.common.enums.PositionSourceEnum;
+import cn.zhh.common.enums.WorkExpEnum;
+import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.crawler.framework.DetailPageParser;
 import cn.zhh.crawler.service.MqProducer;
 import lombok.extern.slf4j.Slf4j;
@@ -136,6 +140,7 @@ public class LagouDetailPageParser implements DetailPageParser<PositionInfoMsg> 
 
     @Override
     public void processObj(PositionInfoMsg positionInfoMsg) {
+        convert(positionInfoMsg);
         mqProducer.sendPositionInfoMsg(positionInfoMsg);
     }
 
@@ -162,5 +167,92 @@ public class LagouDetailPageParser implements DetailPageParser<PositionInfoMsg> 
         }
 
         return new Date();
+    }
+
+    private void convert(PositionInfoMsg positionInfoMsg) {
+        // 工作经验转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
+            switch (workExp) {
+                case "经验不限":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NOT_REQUIRED.getDescription());
+                    break;
+                case "经验应届毕业生":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NONE.getDescription());
+                    break;
+                case "经验1年以下":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.LESS1.getDescription());
+                    break;
+                case "经验1-3年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.ONE2THREE.getDescription());
+                    break;
+                case "经验3-5年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.THREE2FIVE.getDescription());
+                    break;
+                case "经验5-10年":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.FIVE2TEN.getDescription());
+                    break;
+                case "经验10年以上":
+                    positionInfoMsg.setWorkExp(WorkExpEnum.MORE10.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setWorkExp(WorkExpEnum.NOT_REQUIRED.getDescription());
+                    break;
+            }
+        });
+        // 学历转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
+            switch (workExp) {
+                case "学历不限":
+                    positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
+                    break;
+                case "大专及以上":
+                    positionInfoMsg.setEducation(EducationEnum.JUNIOR_COLLEGE.getDescription());
+                    break;
+                case "本科及以上":
+                    positionInfoMsg.setEducation(EducationEnum.UNDERGRADUATE.getDescription());
+                    break;
+                case "硕士及以上":
+                    positionInfoMsg.setEducation(EducationEnum.MASTER.getDescription());
+                    break;
+                case "博士及以上":
+                    positionInfoMsg.setEducation(EducationEnum.DOCTOR.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
+                    break;
+            }
+        });
+        // 公司发展阶段转换
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getCompanyDevelopmentalStage(), developmentalStage -> {
+            switch (developmentalStage) {
+                case "不需要融资":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.NOT_NEED.getDescription());
+                    break;
+                case "未融资":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.NOT.getDescription());
+                    break;
+                case "天使轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.ANGEL.getDescription());
+                    break;
+                case "A轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.A.getDescription());
+                    break;
+                case "B轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.B.getDescription());
+                    break;
+                case "C轮":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.C.getDescription());
+                    break;
+                case "D轮及以上":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.D.getDescription());
+                    break;
+                case "上市公司":
+                    positionInfoMsg.setCompanyDevelopmentalStage(DevelopmentStageEnum.LISTED.getDescription());
+                    break;
+                default:
+                    positionInfoMsg.setCompanyDevelopmentalStage("");
+                    break;
+            }
+        });
     }
 }

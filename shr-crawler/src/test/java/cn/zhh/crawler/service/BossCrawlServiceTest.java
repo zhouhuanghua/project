@@ -41,7 +41,7 @@ public class BossCrawlServiceTest {
         searchPositionInfoMsg.setContent("Java");
         searchPositionInfoMsg.setCity(CityEnum.SHANGHAI.getCode());
         CrawlTask.newInstance(searchPositionInfoMsg, webDriverFactory, "https://www.zhipin.com/",
-                bossListPageParser, 2, bossDetailPageParser, 2, 50).start();
+                bossListPageParser, 2, bossDetailPageParser, 0, 60).start();
     }
 
 }

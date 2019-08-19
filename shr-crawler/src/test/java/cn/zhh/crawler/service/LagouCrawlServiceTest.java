@@ -39,10 +39,10 @@ public class LagouCrawlServiceTest {
     @Test
     public void crawl2() throws Exception {
         SearchPositionInfoMsg searchPositionInfoMsg = new SearchPositionInfoMsg();
-        searchPositionInfoMsg.setContent("人工智能");
-        searchPositionInfoMsg.setCity(CityEnum.GUANGZHOU.getCode());
+        searchPositionInfoMsg.setContent("python");
+        searchPositionInfoMsg.setCity(CityEnum.CHENGDU.getCode());
         CrawlTask.newInstance(searchPositionInfoMsg, webDriverFactory, "https://www.lagou.com/",
-                lagouListPageParser, 2, lagouDetailPageParser, 2, 50).start();
+                lagouListPageParser, 1, lagouDetailPageParser, 0, 0).start();
     }
 
 }
