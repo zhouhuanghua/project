@@ -79,12 +79,12 @@ public class CrawlTask<T1, T2> {
             process(webDriver);
             isEnd = true;
             retryThread.join();
+            log.info("【爬虫任务】任务结束！baseUrl={}，parameter={}", baseUrl, parameter);
         } catch (Exception e) {
-            log.info("【爬虫任务】重试线程异常！e={}", ThrowableUtils.getThrowableStackTrace(e));
+            log.info("【爬虫任务】执行异常！e={}", ThrowableUtils.getThrowableStackTrace(e));
         } finally {
             webDriver.quit();
         }
-        log.info("【爬虫任务】任务结束！baseUrl={}，parameter={}", baseUrl, parameter);
     }
 
     private void process(WebDriver webDriver) {
