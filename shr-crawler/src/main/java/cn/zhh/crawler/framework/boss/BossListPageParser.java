@@ -22,13 +22,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * TODO
+ * BOSS列表页解析器
  *
  * @author Zhou Huanghua
  */
 @Slf4j
 @Component
 public class BossListPageParser implements ListPageParser<SearchPositionInfoMsg> {
+
     @Override
     public ListPageParser<SearchPositionInfoMsg> newInstance() {
         return new BossListPageParser();
@@ -51,9 +52,9 @@ public class BossListPageParser implements ListPageParser<SearchPositionInfoMsg>
 
     @Override
     public WebElement nextPage(WebDriver webDriver) {
-        WebElement element = webDriver.findElement(By.cssSelector("a[ka=page-next]"));
         new Actions(webDriver).sendKeys(Keys.END).perform();
         sleep(1, TimeUnit.SECONDS);
+        WebElement element = webDriver.findElement(By.cssSelector("a[ka=page-next]"));
         return element;
     }
 

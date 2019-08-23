@@ -14,15 +14,12 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * TODO
+ * 智联列表页解析器
  *
  * @author Zhou Huanghua
  */
@@ -45,64 +42,74 @@ public class ZhilianListPageParser implements ListPageParser<SearchPositionInfoM
         webDriver.findElement(By.cssSelector("a[class='zp-search__btn zp-search__btn--blue']")).click();
         // 选择城市
         selectCity(webDriver, parameter.getCity());
+        // 点击按最新发布排序
+        webDriver.findElement(By.id("sou_sortUls")).findElements(By.tagName("li")).get(2).click();
     }
 
     @Override
     public List<Document> generateItems(Document document) {
-        Elements elements = document.selectFirst("div[class=job-list]").selectFirst("ul").getElementsByTag("li");
+        Elements elements = document.getElementById("listContent")
+                .select("div[class='contentpile__content__wrapper clearfix']");
         return elements.stream().map(e -> Jsoup.parse(e.html())).collect(Collectors.toList());
     }
 
     @Override
     public WebElement nextPage(WebDriver webDriver) {
-        WebElement element = webDriver.findElement(By.cssSelector("a[ka=page-next]"));
         new Actions(webDriver).sendKeys(Keys.END).perform();
         sleep(1, TimeUnit.SECONDS);
-        return element;
+        return webDriver.findElement(By.id("pagination_content"))
+                .findElement(By.cssSelector("button[class='btn soupager__btn']"));
     }
 
     private void selectCity(WebDriver webDriver, Byte city) {
-        // 点击"选择城市"
-        webDriver.findElement(By.cssSelector("span[class=switchover-city]")).click();
-        // 鼠标放在热门选项上
-        List<WebElement> liElements = webDriver.findElement(By.cssSelector("ul[class=dorpdown-province]")).findElements(By.tagName("li"));
-        Actions actions = new Actions(webDriver);
-        actions.moveToElement(liElements.get(0)).perform();
-        // 选择对应城市
-        List<WebElement> liElementList = webDriver.findElement(By.cssSelector("div[class=dorpdown-city]"))
-                .findElement(By.cssSelector("ul[class=show]")).findElements(By.tagName("li"));
+        // 切换到新窗口
+        Iterator<String> iterator = webDriver.getWindowHandles().iterator();
+        while (iterator.hasNext()) {
+            String window = iterator.next();
+            if (!Objects.equals(window, webDriver.getWindowHandle())) {
+                webDriver.switchTo().window(window);
+                break;
+            }
+        }
+        // 点击弹出城市选择列表
+        webDriver.findElement(By.id("queryTitleUls"))
+                .findElement(By.cssSelector("li[class='currentCity query-city__uls__li current-city']"))
+                .findElement(By.cssSelector("span[class='current-city__down span_down']")).click();
+        // 构造元素与城市的映射关系
+        sleep(500, TimeUnit.MILLISECONDS);
+        List<WebElement> liElementList = webDriver.findElement(By.id("queryCityBox"))
+                .findElement(By.cssSelector("div[class='cityChild city-child']"))
+                .findElement(By.cssSelector("ul[class='choiseCity clearfix city-child__choise']"))
+                .findElements(By.tagName("li"));
         Map<Byte, WebElement> cityMap = new HashMap<>(8);
         for (WebElement liElement : liElementList) {
-            String text = liElement.getAttribute("ka");
+            String text = liElement.getText();
             switch (text) {
-                case "hot-city-100010000":
-                    cityMap.put(CityEnum.ALL.getCode(), liElement);
-                    break;
-                case "101010100":
+                case "北京":
                     cityMap.put(CityEnum.BEIJING.getCode(), liElement);
                     break;
-                case "hot-city-101020100":
+                case "上海":
                     cityMap.put(CityEnum.SHANGHAI.getCode(), liElement);
                     break;
-                case "hot-city-101280100":
+                case "广州":
                     cityMap.put(CityEnum.GUANGZHOU.getCode(), liElement);
                     break;
-                case "hot-city-101280600":
+                case "深圳":
                     cityMap.put(CityEnum.SHENZHEN.getCode(), liElement);
                     break;
-                case "hot-city-101210100":
+                case "成都":
                     cityMap.put(CityEnum.HANGZHOU.getCode(), liElement);
                     break;
-                case "hot-city-101270100":
+                case "杭州":
                     cityMap.put(CityEnum.CHENGDU.getCode(), liElement);
                     break;
                 default:
                     break;
             }
         }
-        if (Objects.isNull(city) || !cityMap.containsKey(city)) {
-            actions.moveToElement(cityMap.get(CityEnum.ALL.getCode())).click().perform();
+        if (Objects.nonNull(city) || cityMap.containsKey(city)) {
+            WebElement element = cityMap.get(city);
+            element.findElement(By.tagName("a")).click();
         }
-        actions.moveToElement(cityMap.get(city)).click().perform();
     }
 }

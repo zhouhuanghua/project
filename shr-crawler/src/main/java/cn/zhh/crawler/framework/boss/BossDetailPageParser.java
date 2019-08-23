@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * TODO
+ * BOSS详情页解析器
  *
  * @author Zhou Huanghua
  */

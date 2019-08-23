@@ -25,7 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * TODO
+ * 拉勾详情页解析器
  *
  * @author Zhou Huanghua
  */

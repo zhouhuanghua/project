@@ -1,8 +1,10 @@
 package cn.zhh.crawler.framework.zhilian;
 
+import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.enums.DevelopmentStageEnum;
 import cn.zhh.common.enums.EducationEnum;
+import cn.zhh.common.enums.PositionSourceEnum;
 import cn.zhh.common.enums.WorkExpEnum;
 import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.crawler.framework.DetailPageParser;
@@ -10,25 +12,18 @@ import cn.zhh.crawler.service.MqProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.regex.Pattern;
-
 /**
- * TODO
+ * 智联详情页解析器
  *
  * @author Zhou Huanghua
  */
 @Slf4j
 @Component
 public class ZhilianDetailPageParser implements DetailPageParser<PositionInfoMsg> {
-
-    private String baseUrl;
-
-    private Pattern publishTimePattern = Pattern.compile("[\\d]{4}-[\\d]{2}-[\\d]{2}\\s[\\d]{2}:[\\d]{2}");
-
-    private Pattern updateTimePattern = Pattern.compile("[\\d]{4}-[\\d]{2}-[\\d]{2}");
 
     @Autowired
     private MqProducer mqProducer;
@@ -40,19 +35,50 @@ public class ZhilianDetailPageParser implements DetailPageParser<PositionInfoMsg
 
     @Override
     public String parseUrl(String baseUrl, Document itemDocument) {
-        this.baseUrl = baseUrl;
-        Element aElement = itemDocument.selectFirst("div[class=info-primary]").selectFirst("h3[class=name]").selectFirst("a");
-        return baseUrl + aElement.attr("href").substring(1);
+        return itemDocument.selectFirst("a[class=contentpile__content__wrapper__item__info]")
+                .attr("href");
     }
 
     @Override
     public boolean isNormalPage(Document detailDocument) {
-        return detailDocument.html().contains("<title>请稍后</title>") ? false : true;
+        return true;
     }
 
     @Override
     public PositionInfoMsg generateObj(String url, Document detailDocument) {
         PositionInfoMsg positionInfoMsg = new PositionInfoMsg();
+        https:
+//jobs.zhaopin.com/164392122250540.htm
+        positionInfoMsg.setSource(PositionSourceEnum.ZHILIAN.getCode());
+        positionInfoMsg.setUrl(url);
+        positionInfoMsg.setUniqueKey(url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf(".")));
+
+        Element jobElement = detailDocument.selectFirst("div[class=job-summary]");
+
+        positionInfoMsg.setName(jobElement.selectFirst("h3[class=summary-plane__title]").text());
+
+        positionInfoMsg.setSalary(jobElement.selectFirst("span[class=summary-plane__salary]").text());
+
+        Elements liElements = jobElement.selectFirst("ul[class=summary-plane__info]").getElementsByTag("li");
+        positionInfoMsg.setCity(liElements.get(0).text());
+        positionInfoMsg.setWorkExp(liElements.get(1).text());
+        positionInfoMsg.setEducation(liElements.get(2).text());
+
+        Elements pElements = detailDocument.selectFirst("div[class=job-detail]")
+                .selectFirst("div[class=describtion__detail-content]").getElementsByTag("p");
+        String description = pElements.stream().map(Element::text).reduce((s1, s2) -> s1 + SysConsts.LINE_SEPARATOR + s2).orElse("");
+        positionInfoMsg.setDescription(description);
+
+        positionInfoMsg.setWorkAddress(detailDocument.selectFirst("div[class=job-address]").selectFirst("span[class=job-address__content-text]").text());
+
+        Element companyElement = detailDocument.selectFirst("div[class=company]");
+        positionInfoMsg.setCompanyLogo(companyElement.selectFirst("img[class=company__avatar]").attr("src"));
+        positionInfoMsg.setCompanyName(companyElement.selectFirst("a[class=company__title]").text());
+        Elements buttonElements = companyElement.selectFirst("div[class=company__detail]").getElementsByTag("button");
+        positionInfoMsg.setCompanyDomain(buttonElements.get(0).text());
+        positionInfoMsg.setCompanyScale(buttonElements.get(1).text());
+        positionInfoMsg.setCompanyIntroduction(companyElement.selectFirst("div[class=company__description]").text());
+        positionInfoMsg.setCompanyUrl(companyElement.selectFirst("a[class=company__page-site]").text());
 
         return positionInfoMsg;
     }
