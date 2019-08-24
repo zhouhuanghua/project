@@ -1,4 +1,4 @@
-package cn.zhh.crawler.service;
+package cn.zhh.crawler.framework;
 
 import com.machinepublishers.jbrowserdriver.JBrowserDriver;
 import com.machinepublishers.jbrowserdriver.Settings;
@@ -7,9 +7,6 @@ import com.machinepublishers.jbrowserdriver.UserAgent;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -20,32 +17,40 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Zhou Huanghua
  */
-@Component
-public class WebDriverFactory {
+public class BrowserDriverFactory {
 
-    @Value("${selenium.webdriver.type:jbrowser}")
-    private String driverType;
+    private static final String CHROME_DRIVER_PATH = "src/main/resources/static/chromedriver.exe";
 
-    @Value("${selenium.webdriver.chrome-driver-path:}")
-    private String chromeDriverPath;
+    private BrowserDriverFactory() {
+        throw new UnsupportedOperationException("不支持创建实例！");
+    }
 
-    public WebDriver openBrowser() {
+    public static WebDriver openBrowser(DriverType driverType) {
         WebDriver webDriver;
-        // Chrome驱动
-        if (Objects.equals("chrome", driverType) && StringUtils.hasText(chromeDriverPath)) {
-            System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+        // chrome
+        if (Objects.equals(DriverType.CHROME, driverType)) {
+            System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
             ChromeOptions chromeOptions = new ChromeOptions();
             chromeOptions.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
             webDriver = new ChromeDriver(chromeOptions);
         }
-        // JBrowser驱动
-        else {
+        // jbrowser
+        else if (Objects.equals(DriverType.JBROWSER, driverType)) {
             webDriver = new JBrowserDriver(Settings.builder()
                     .timezone(Timezone.ASIA_SHANGHAI)
                     .userAgent(UserAgent.CHROME).build());
         }
+        // unknow
+        else {
+            throw new RuntimeException("未知的驱动类型！");
+        }
+
         webDriver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
         webDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
         return webDriver;
+    }
+
+    public static enum DriverType {
+        CHROME, JBROWSER;
     }
 }

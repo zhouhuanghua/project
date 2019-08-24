@@ -3,7 +3,6 @@ package cn.zhh.crawler.service;
 import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.dto.mq.BaseMqMessage;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
-import cn.zhh.common.dto.mq.QueryCompanyCommentMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -29,15 +28,6 @@ public class MqProducer {
      */
     public void sendPositionInfoMsg(PositionInfoMsg msg) {
         send(MqConsts.DIRECT_EXCHANGE_NAME, MqConsts.POSITION_INFO_ROUTING_KEY, msg);
-    }
-
-    /**
-     * 发送公司评论消息
-     *
-     * @param msg
-     */
-    public void sendCompanyCommentMsg(QueryCompanyCommentMsg msg) {
-        send(MqConsts.DIRECT_EXCHANGE_NAME, MqConsts.COMPANY_COMMENT_ROUTING_KEY, msg);
     }
 
     private void send(String exchange, String routingKey, BaseMqMessage message) {

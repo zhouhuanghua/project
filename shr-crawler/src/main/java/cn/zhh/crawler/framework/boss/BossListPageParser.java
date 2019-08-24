@@ -31,11 +31,6 @@ import java.util.stream.Collectors;
 public class BossListPageParser implements ListPageParser<SearchPositionInfoMsg> {
 
     @Override
-    public ListPageParser<SearchPositionInfoMsg> newInstance() {
-        return new BossListPageParser();
-    }
-
-    @Override
     public void beforeProcess(WebDriver webDriver, SearchPositionInfoMsg parameter) {
         // 选择城市
         selectCity(webDriver, parameter.getCity());

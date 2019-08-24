@@ -7,5 +7,4 @@ package cn.zhh.crawler.constant;
  */
 public interface CrawlerConsts {
 
-
 }

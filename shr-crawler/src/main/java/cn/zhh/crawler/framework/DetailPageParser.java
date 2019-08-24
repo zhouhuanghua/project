@@ -9,8 +9,6 @@ import org.jsoup.nodes.Document;
  */
 public interface DetailPageParser<T> {
 
-    DetailPageParser<T> newInstance();
-
     String parseUrl(String baseUrl, Document itemDocument);
 
     boolean isNormalPage(Document detailDocument);

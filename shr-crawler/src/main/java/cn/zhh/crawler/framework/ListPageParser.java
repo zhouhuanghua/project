@@ -14,8 +14,6 @@ import java.util.concurrent.TimeUnit;
  */
 public interface ListPageParser<T> {
 
-    ListPageParser<T> newInstance();
-
     void beforeProcess(WebDriver webDriver, T parameter);
 
     List<Document> generateItems(Document document);

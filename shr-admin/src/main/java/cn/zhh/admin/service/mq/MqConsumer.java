@@ -63,28 +63,6 @@ public class MqConsumer {
     }
 
     /**
-     * 消费公司评论
-     *
-     * @param msg
-     * @param headers
-     * @param channel
-     * @throws Exception
-     */
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = MqConsts.COMPANY_COMMENT_QUEUE_NAME, durable = "true"),
-            exchange = @Exchange(name = MqConsts.DIRECT_EXCHANGE_NAME),
-            key = MqConsts.COMPANY_COMMENT_ROUTING_KEY
-    ))
-    @RabbitHandler
-    public void consumeCompanyCommentMsg(@Payload Object msg, @Headers Map<String, Object> headers, Channel channel) throws Exception {
-        // 处理消息
-
-        // 手动签收消息
-        Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
-        channel.basicAck(deliveryTag, false);
-    }
-
-    /**
      * 消费校招-实习-数据
      *
      * @param msgBytes

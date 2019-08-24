@@ -7,13 +7,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,15 +20,12 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Zhou Huanghua
  */
-@Component
 @Slf4j
 public class ProxyService {
 
     private final CopyOnWriteArrayList<String> proxyAddressList;
 
     private final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
-
-    private final String FILE_PATH = "classpath:static/ProxyAddress.txt";
 
     private final String BASE_XICI_URL = "https://www.xicidaili.com/nn/";
 
@@ -45,17 +37,6 @@ public class ProxyService {
 
     public ProxyService() {
         proxyAddressList = new CopyOnWriteArrayList<>();
-        loadProxyAddressFile();
-    }
-
-    private void loadProxyAddressFile() {
-        // 加载文件数据
-        try {
-            File file = ResourceUtils.getFile(FILE_PATH);
-            proxyAddressList.addAll(Files.readAllLines(file.toPath()));
-        } catch (IOException e) {
-            log.error("加载代理地址文件异常！", e);
-        }
     }
 
     public void crawl() {

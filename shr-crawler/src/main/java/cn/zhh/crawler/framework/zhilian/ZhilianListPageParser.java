@@ -28,11 +28,6 @@ import java.util.stream.Collectors;
 public class ZhilianListPageParser implements ListPageParser<SearchPositionInfoMsg> {
 
     @Override
-    public ListPageParser<SearchPositionInfoMsg> newInstance() {
-        return new ZhilianListPageParser();
-    }
-
-    @Override
     public void beforeProcess(WebDriver webDriver, SearchPositionInfoMsg parameter) {
         // 关闭弹窗
         webDriver.findElement(By.cssSelector("div[class=risk-warning__content]"))

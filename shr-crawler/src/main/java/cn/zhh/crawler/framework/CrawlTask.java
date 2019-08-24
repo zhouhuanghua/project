@@ -2,8 +2,7 @@ package cn.zhh.crawler.framework;
 
 import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.common.util.ThrowableUtils;
-import cn.zhh.crawler.service.WebDriverFactory;
-import lombok.Setter;
+import cn.zhh.crawler.util.MapUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,6 +12,7 @@ import org.openqa.selenium.WebElement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,14 +24,15 @@ import java.util.concurrent.TimeUnit;
  * @author Zhou Huanghua
  */
 @Slf4j
-@Setter
 public class CrawlTask<T1, T2> {
 
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(3);
 
-    private T1 parameter;
+    private static final Map<String, String> COMMON_HEADER_MAP = MapUtils.buildMap(
+            "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36",
+            "Accept", "application/json, text/plain, */*", "Cookie", "token");
 
-    private WebDriverFactory webDriverFactory;
+    private T1 parameter;
 
     private String baseUrl;
 
@@ -49,7 +50,6 @@ public class CrawlTask<T1, T2> {
     }
 
     public static <T1, T2> CrawlTask<T1, T2> newInstance(T1 parameter,
-                                                         WebDriverFactory webDriverFactory,
                                                          String baseUrl,
                                                          ListPageParser listPageParser,
                                                          int pageMax,
@@ -57,20 +57,19 @@ public class CrawlTask<T1, T2> {
                                                          int retryCount,
                                                          int retryWaitSecond) {
         CrawlTask<T1, T2> crawlTask = new CrawlTask<T1, T2>();
-        crawlTask.setParameter(parameter);
-        crawlTask.setWebDriverFactory(webDriverFactory);
-        crawlTask.setBaseUrl(baseUrl);
-        crawlTask.setListPageParser(listPageParser);
-        crawlTask.setPageMax(pageMax);
-        crawlTask.setDetailPageParser(detailPageParser);
-        crawlTask.setRetryCount(retryCount);
-        crawlTask.setRetryWaitSecond(retryWaitSecond);
+        crawlTask.parameter = parameter;
+        crawlTask.baseUrl = baseUrl;
+        crawlTask.listPageParser = listPageParser;
+        crawlTask.pageMax = pageMax;
+        crawlTask.detailPageParser = detailPageParser;
+        crawlTask.retryCount = retryCount;
+        crawlTask.retryWaitSecond = retryWaitSecond;
         return crawlTask;
     }
 
     public void start() throws IOException {
         log.info("【爬虫任务】启动...");
-        WebDriver webDriver = webDriverFactory.openBrowser();
+        WebDriver webDriver = BrowserDriverFactory.openBrowser(BrowserDriverFactory.DriverType.CHROME);
         try {
             process(webDriver);
             log.info("【爬虫任务】任务结束！baseUrl={}，parameter={}", baseUrl, parameter);
@@ -129,7 +128,7 @@ public class CrawlTask<T1, T2> {
     private void processItem(Document itemDocument) throws Exception {
         String detailUrl = detailPageParser.parseUrl(baseUrl, itemDocument);
         for (int count = 0; ; ++count) {
-            Document detailDocument = Jsoup.connect(detailUrl).get();
+            Document detailDocument = Jsoup.connect(detailUrl).headers(getCommonHeaderMap(detailUrl)).get();
             if (detailPageParser.isNormalPage(detailDocument)) {
                 T2 obj = detailPageParser.generateObj(detailUrl, detailDocument);
                 detailPageParser.processObj(obj);
@@ -148,7 +147,7 @@ public class CrawlTask<T1, T2> {
     }
 
     private void seleniumHandle(String detailPageUrl) {
-        WebDriver webDriver = webDriverFactory.openBrowser();
+        WebDriver webDriver = BrowserDriverFactory.openBrowser(BrowserDriverFactory.DriverType.CHROME);
         try {
             webDriver.manage().window().maximize();
             log.info("【爬虫任务-Selenium】开始处理页面{}...", detailPageUrl);
@@ -175,5 +174,11 @@ public class CrawlTask<T1, T2> {
         } catch (InterruptedException e) {
             log.warn("睡眠异常！", e);
         }
+    }
+
+    private Map<String, String> getCommonHeaderMap(String origin) {
+        Map<String, String> headerMap = MapUtils.buildMap("Origin", origin);
+        headerMap.putAll(COMMON_HEADER_MAP);
+        return headerMap;
     }
 }

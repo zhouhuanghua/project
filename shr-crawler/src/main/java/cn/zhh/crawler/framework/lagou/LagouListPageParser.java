@@ -30,11 +30,6 @@ import java.util.stream.Collectors;
 public class LagouListPageParser implements ListPageParser<SearchPositionInfoMsg> {
 
     @Override
-    public ListPageParser<SearchPositionInfoMsg> newInstance() {
-        return new LagouListPageParser();
-    }
-
-    @Override
     public void beforeProcess(WebDriver webDriver, SearchPositionInfoMsg searchCondition) {
         // 选择城市
         selectCity(webDriver, searchCondition.getCity());

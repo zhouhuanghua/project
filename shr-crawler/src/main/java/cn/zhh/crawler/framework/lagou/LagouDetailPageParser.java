@@ -45,11 +45,6 @@ public class LagouDetailPageParser implements DetailPageParser<PositionInfoMsg> 
     private MqProducer mqProducer;
 
     @Override
-    public DetailPageParser<PositionInfoMsg> newInstance() {
-        return new LagouDetailPageParser();
-    }
-
-    @Override
     public String parseUrl(String baseUrl, Document itemDocument) {
         return itemDocument.selectFirst("a[class=position_link]").attr("href");
     }
@@ -58,10 +53,10 @@ public class LagouDetailPageParser implements DetailPageParser<PositionInfoMsg> 
     public PositionInfoMsg generateObj(String url, Document itemDocument) {
         PositionInfoMsg positionInfoMsg = new PositionInfoMsg();
 
-        // 职位来源
+        // 来源
         positionInfoMsg.setSource(PositionSourceEnum.LAGOU.getCode());
 
-        // 职位链接
+        // 链接
         positionInfoMsg.setUrl(url);
 
         // 唯一标识

@@ -16,6 +16,10 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Calendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * 智联详情页解析器
  *
@@ -25,13 +29,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ZhilianDetailPageParser implements DetailPageParser<PositionInfoMsg> {
 
+    private Pattern publishTimePattern1 = Pattern.compile("[\\d]{2}:[\\d]{2}");
+
+    private Pattern publishTimePattern2 = Pattern.compile("[\\d]{4}-[\\d]{2}-[\\d]{2}");
+
     @Autowired
     private MqProducer mqProducer;
-
-    @Override
-    public DetailPageParser<PositionInfoMsg> newInstance() {
-        return new ZhilianDetailPageParser();
-    }
 
     @Override
     public String parseUrl(String baseUrl, Document itemDocument) {
@@ -47,37 +50,73 @@ public class ZhilianDetailPageParser implements DetailPageParser<PositionInfoMsg
     @Override
     public PositionInfoMsg generateObj(String url, Document detailDocument) {
         PositionInfoMsg positionInfoMsg = new PositionInfoMsg();
-        https:
-//jobs.zhaopin.com/164392122250540.htm
+
+        // 来源
         positionInfoMsg.setSource(PositionSourceEnum.ZHILIAN.getCode());
+
+        // 链接
         positionInfoMsg.setUrl(url);
+
+        // 唯一标识
         positionInfoMsg.setUniqueKey(url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf(".")));
 
         Element jobElement = detailDocument.selectFirst("div[class=job-summary]");
 
+        // 职位名称
         positionInfoMsg.setName(jobElement.selectFirst("h3[class=summary-plane__title]").text());
 
+        // 发布时间
+        String publishTimeText = jobElement.selectFirst("span[class=summary-plane__time]")
+                .selectFirst("i[class='iconfont icon-update-time']").text();
+        Matcher matcher = null;
+        if ((matcher = publishTimePattern1.matcher(publishTimeText)).find()) {
+            String[] hourMinute = matcher.group().split(":");
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hourMinute[0]));
+            calendar.set(Calendar.MINUTE, Integer.parseInt(hourMinute[1]));
+            positionInfoMsg.setPublishTime(calendar.getTime());
+        } else if ((matcher = publishTimePattern2.matcher(publishTimeText)).find()) {
+            String[] monthDay = matcher.group().replace("月", ":")
+                    .replace("日", "").split(":");
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.MONTH, Integer.parseInt(monthDay[0]) - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(monthDay[1]));
+            positionInfoMsg.setPublishTime(calendar.getTime());
+        }
+
+        // 薪水
         positionInfoMsg.setSalary(jobElement.selectFirst("span[class=summary-plane__salary]").text());
 
         Elements liElements = jobElement.selectFirst("ul[class=summary-plane__info]").getElementsByTag("li");
+        // 城市
         positionInfoMsg.setCity(liElements.get(0).text());
+        // 工作经验
         positionInfoMsg.setWorkExp(liElements.get(1).text());
+        // 学历
         positionInfoMsg.setEducation(liElements.get(2).text());
 
+        // 职位描述
         Elements pElements = detailDocument.selectFirst("div[class=job-detail]")
                 .selectFirst("div[class=describtion__detail-content]").getElementsByTag("p");
         String description = pElements.stream().map(Element::text).reduce((s1, s2) -> s1 + SysConsts.LINE_SEPARATOR + s2).orElse("");
         positionInfoMsg.setDescription(description);
 
+        // 工作地点
         positionInfoMsg.setWorkAddress(detailDocument.selectFirst("div[class=job-address]").selectFirst("span[class=job-address__content-text]").text());
 
         Element companyElement = detailDocument.selectFirst("div[class=company]");
+        // 公司logo
         positionInfoMsg.setCompanyLogo(companyElement.selectFirst("img[class=company__avatar]").attr("src"));
+        // 公司名称
         positionInfoMsg.setCompanyName(companyElement.selectFirst("a[class=company__title]").text());
+        // 公司主营领域
         Elements buttonElements = companyElement.selectFirst("div[class=company__detail]").getElementsByTag("button");
         positionInfoMsg.setCompanyDomain(buttonElements.get(0).text());
+        // 公司规模
         positionInfoMsg.setCompanyScale(buttonElements.get(1).text());
+        // 公司简介
         positionInfoMsg.setCompanyIntroduction(companyElement.selectFirst("div[class=company__description]").text());
+        // 公司url
         positionInfoMsg.setCompanyUrl(companyElement.selectFirst("a[class=company__page-site]").text());
 
         return positionInfoMsg;

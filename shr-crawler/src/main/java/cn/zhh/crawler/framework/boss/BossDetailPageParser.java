@@ -36,21 +36,19 @@ public class BossDetailPageParser implements DetailPageParser<PositionInfoMsg> {
 
     private Pattern publishTimePattern = Pattern.compile("[\\d]{4}-[\\d]{2}-[\\d]{2}\\s[\\d]{2}:[\\d]{2}");
 
-    private Pattern updateTimePattern = Pattern.compile("[\\d]{4}-[\\d]{2}-[\\d]{2}");
+    private Pattern updateTimePattern = Pattern.compile("\\d+月\\d+日");
 
     @Autowired
     private MqProducer mqProducer;
 
     @Override
-    public DetailPageParser<PositionInfoMsg> newInstance() {
-        return new BossDetailPageParser();
-    }
-
-    @Override
     public String parseUrl(String baseUrl, Document itemDocument) {
+        if (baseUrl.endsWith("/")) {
+            baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+        }
         this.baseUrl = baseUrl;
         Element aElement = itemDocument.selectFirst("div[class=info-primary]").selectFirst("h3[class=name]").selectFirst("a");
-        return baseUrl + aElement.attr("href").substring(1);
+        return this.baseUrl + aElement.attr("href");
     }
 
     @Override
@@ -64,9 +62,11 @@ public class BossDetailPageParser implements DetailPageParser<PositionInfoMsg> {
 
         // 来源
         positionInfoMsg.setSource(PositionSourceEnum.BOSS.getCode());
-        // url
+
+        // 链接
         positionInfoMsg.setUrl(url);
-        // uniqueKey
+
+        // 唯一标识
         positionInfoMsg.setUniqueKey(url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf(".")));
 
         Element mainElement = detailDocument.getElementById("main");
@@ -98,7 +98,7 @@ public class BossDetailPageParser implements DetailPageParser<PositionInfoMsg> {
         // 公司名称
         positionInfoMsg.setCompanyName(aElements.get(1).text());
         // 公司url
-        positionInfoMsg.setCompanyUrl(baseUrl + aElements.get(1).attr("href").substring(1));
+        positionInfoMsg.setCompanyUrl(baseUrl + aElements.get(1).attr("href"));
 
         Elements pElements = companyElement.getElementsByTag("p");
         // 公司发展阶段
@@ -123,7 +123,7 @@ public class BossDetailPageParser implements DetailPageParser<PositionInfoMsg> {
         positionInfoMsg.setDescription(secElements.get(0).selectFirst("div[class=text]").text().replace("<br>", SysConsts.LINE_SEPARATOR));
         // 工作地址
         positionInfoMsg.setWorkAddress(secElements.last().selectFirst("div[class=job-location]").selectFirst("div[class=location-address]").text());
-        // 公司介绍
+        // 公司简介
         positionInfoMsg.setCompanyIntroduction(mainElement.selectFirst("div[class=detail-content]")
                 .selectFirst("div[class='job-sec company-info']")
                 .selectFirst("div[class=text]").text().replace("<br>", SysConsts.LINE_SEPARATOR));

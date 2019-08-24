@@ -2,7 +2,6 @@ package cn.zhh.admin.service.mq;
 
 import cn.zhh.common.constant.MqConsts;
 import cn.zhh.common.dto.mq.BaseMqMessage;
-import cn.zhh.common.dto.mq.QueryCompanyCommentMsg;
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -29,15 +28,6 @@ public class MqProducer {
      */
     public void sendSearchPositionInfoMsg(SearchPositionInfoMsg msg) {
         send(MqConsts.SEARCH_POSITION_INFO_TOPIC_EXCHANGE_NAME, "", msg);
-    }
-
-    /**
-     * 发送查询公司评论消息
-     *
-     * @param msg
-     */
-    public void sendQueryCompanyCommentMsg(QueryCompanyCommentMsg msg) {
-        send(MqConsts.DIRECT_EXCHANGE_NAME, MqConsts.QUERY_COMPANY_COMMENT_ROUTING_KEY, msg);
     }
 
     private void send(String exchange, String routingKey, BaseMqMessage message) {
