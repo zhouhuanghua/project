@@ -1,11 +1,11 @@
 package cn.zhh.crawler.framework.zhilian;
 
-import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.enums.DevelopmentStageEnum;
 import cn.zhh.common.enums.EducationEnum;
 import cn.zhh.common.enums.PositionSourceEnum;
 import cn.zhh.common.enums.WorkExpEnum;
+import cn.zhh.common.util.JsonUtils;
 import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.crawler.framework.DetailPageParser;
 import cn.zhh.crawler.service.MqProducer;
@@ -16,9 +16,10 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Calendar;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 智联详情页解析器
@@ -44,7 +45,7 @@ public class ZhilianDetailPageParser implements DetailPageParser<PositionInfoMsg
 
     @Override
     public boolean isNormalPage(Document detailDocument) {
-        return true;
+        return detailDocument.html().contains("为保证您的正常访问，请进行如下验证") ? false : true;
     }
 
     @Override
@@ -95,11 +96,16 @@ public class ZhilianDetailPageParser implements DetailPageParser<PositionInfoMsg
         // 学历
         positionInfoMsg.setEducation(liElements.get(2).text());
 
+        Element jobDetailElement = detailDocument.selectFirst("div[class=job-detail]");
+        // 福利
+        OptionalOperationUtils.consumeIfNonNull(jobDetailElement.selectFirst("div[class=highlights__content]"), element -> {
+            Elements spanElements = element.select("span[class=highlights__content-item]");
+            String welfare = spanElements.stream().map(Element::text).reduce((s1, s2) -> s1 + "," + s2).orElse("");
+            positionInfoMsg.setWelfare(welfare);
+        });
         // 职位描述
-        Elements pElements = detailDocument.selectFirst("div[class=job-detail]")
-                .selectFirst("div[class=describtion__detail-content]").getElementsByTag("p");
-        String description = pElements.stream().map(Element::text).reduce((s1, s2) -> s1 + SysConsts.LINE_SEPARATOR + s2).orElse("");
-        positionInfoMsg.setDescription(description);
+        String jobDescription = getJobDescription(jobDetailElement.selectFirst("div[class=describtion]"));
+        positionInfoMsg.setDescription(jobDescription);
 
         // 工作地点
         positionInfoMsg.setWorkAddress(detailDocument.selectFirst("div[class=job-address]").selectFirst("span[class=job-address__content-text]").text());
@@ -126,6 +132,33 @@ public class ZhilianDetailPageParser implements DetailPageParser<PositionInfoMsg
     public void processObj(PositionInfoMsg positionInfoMsg) {
         convert(positionInfoMsg);
         mqProducer.sendPositionInfoMsg(positionInfoMsg);
+    }
+
+    private String getJobDescription(Element element) {
+        List<String> lines = new ArrayList<>();
+        // 技能要求
+        OptionalOperationUtils.consumeIfNonNull(element.selectFirst("div[class=describtion__skills-content]"), e -> {
+            OptionalOperationUtils.consumeIfNotEmpty(e.select("span[class=describtion__skills-item]"), spans -> {
+                String skillsStr = spans.stream().map(Element::text).reduce((s1, s2) -> s1 + " " + s2).orElse("");
+                lines.add("技能要求:");
+                lines.add(skillsStr);
+            });
+        });
+        // 描述
+        OptionalOperationUtils.consumeIfNonNull(element.selectFirst("div[class=describtion__detail-content]"), e -> {
+
+            Elements elements = e.select("*");
+            List<Element> elementList1 = elements.stream()
+                    .filter(e1 -> {
+                        Optional<String> any = e1.children().stream().map(Element::tagName).filter(tagName -> !Objects.equals(tagName, "br")).findAny();
+                        return !any.isPresent();
+                    })
+                    .collect(Collectors.toList());
+            System.out.println(elementList1);
+
+        });
+
+        return JsonUtils.toJson(null);
     }
 
     private void convert(PositionInfoMsg positionInfoMsg) {

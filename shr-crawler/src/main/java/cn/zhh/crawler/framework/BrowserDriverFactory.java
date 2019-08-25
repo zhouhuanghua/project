@@ -1,5 +1,6 @@
 package cn.zhh.crawler.framework;
 
+import cn.zhh.crawler.constant.CrawlerConsts;
 import com.machinepublishers.jbrowserdriver.JBrowserDriver;
 import com.machinepublishers.jbrowserdriver.Settings;
 import com.machinepublishers.jbrowserdriver.Timezone;
@@ -10,7 +11,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.Collections;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 浏览器驱动工厂类
@@ -45,8 +45,9 @@ public class BrowserDriverFactory {
             throw new RuntimeException("未知的驱动类型！");
         }
 
-        webDriver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
-        webDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        webDriver.manage().timeouts().pageLoadTimeout(CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_VALUE, CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
+        webDriver.manage().timeouts().setScriptTimeout(CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_VALUE, CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
+        webDriver.manage().timeouts().implicitlyWait(CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_VALUE, CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
         return webDriver;
     }
 

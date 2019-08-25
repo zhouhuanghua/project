@@ -1,11 +1,11 @@
 package cn.zhh.crawler.framework.lagou;
 
-import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.enums.DevelopmentStageEnum;
 import cn.zhh.common.enums.EducationEnum;
 import cn.zhh.common.enums.PositionSourceEnum;
 import cn.zhh.common.enums.WorkExpEnum;
+import cn.zhh.common.util.JsonUtils;
 import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.crawler.framework.DetailPageParser;
 import cn.zhh.crawler.service.MqProducer;
@@ -18,11 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 拉勾详情页解析器
@@ -95,9 +94,8 @@ public class LagouDetailPageParser implements DetailPageParser<PositionInfoMsg> 
         positionInfoMsg.setWelfare(advantage);
 
         // 职位描述
-        Elements pElements = itemDocument.selectFirst("div[class=job-detail]").getElementsByTag("p");
-        String desc = pElements.stream().map(Element::text).reduce((s1, s2) -> s1 + SysConsts.LINE_SEPARATOR + s2).orElse("");
-        positionInfoMsg.setDescription(desc);
+        String jobDescription = getJobDescription(itemDocument.selectFirst("div[class=job-detail]"));
+        positionInfoMsg.setDescription(jobDescription);
 
         // 工作地址
         Elements aElements = itemDocument.selectFirst("div[class=work_addr]").getElementsByTag("a");
@@ -162,6 +160,14 @@ public class LagouDetailPageParser implements DetailPageParser<PositionInfoMsg> 
         }
 
         return new Date();
+    }
+
+    private String getJobDescription(Element element) {
+        List<String> lines = element.getElementsByTag("p").stream()
+                .map(Element::html)
+                .flatMap(html -> Arrays.stream(html.split("<br>")))
+                .collect(Collectors.toList());
+        return JsonUtils.toJson(lines);
     }
 
     private void convert(PositionInfoMsg positionInfoMsg) {

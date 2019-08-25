@@ -2,10 +2,12 @@ package cn.zhh.crawler.framework;
 
 import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.common.util.ThrowableUtils;
+import cn.zhh.crawler.constant.CrawlerConsts;
 import cn.zhh.crawler.util.MapUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -14,9 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * 爬虫任务
@@ -26,7 +26,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class CrawlTask<T1, T2> {
 
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(3);
+    private static final ExecutorService SELENIUM_EXECUTOR = Executors.newFixedThreadPool(2);
+
+    private static final ScheduledExecutorService SCHEDULED_EXECUTOR = Executors.newScheduledThreadPool(10);
 
     private static final Map<String, String> COMMON_HEADER_MAP = MapUtils.buildMap(
             "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36",
@@ -83,7 +85,7 @@ public class CrawlTask<T1, T2> {
     private void process(WebDriver webDriver) {
         webDriver.manage().window().maximize();
         log.info("【爬虫任务】开始跳转页面{}...", baseUrl);
-        webDriver.navigate().to(baseUrl);
+        openPage(webDriver, baseUrl);
         sleep(1, TimeUnit.SECONDS);
 
         // 执行前置处理
@@ -107,6 +109,14 @@ public class CrawlTask<T1, T2> {
                         itemDocument, ThrowableUtils.getThrowableStackTrace(e));
             }
         }
+    }
+
+    private void openPage(WebDriver driver, String url) {
+        ScheduledFuture<?> scheduledFuture = SCHEDULED_EXECUTOR.schedule(() -> {
+            ((JavascriptExecutor) driver).executeScript("window.stop();");
+        }, Double.valueOf(CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_VALUE * 0.8).longValue(), CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
+        driver.get(url);
+        scheduledFuture.cancel(false);
     }
 
     private List<Document> getAllItemByPage(WebDriver webDriver) {
@@ -136,11 +146,11 @@ public class CrawlTask<T1, T2> {
                 break;
             }
             if (count < retryCount) {
-                log.info("页面{}异常，等待{}秒后重试！", detailUrl, retryWaitSecond);
+                log.info("【爬虫任务】页面{}异常，等待{}秒后重试！", detailUrl, retryWaitSecond);
                 sleep(retryWaitSecond, TimeUnit.SECONDS);
             } else {
-                log.info("页面{}加入Selenium处理队列！", detailUrl, retryWaitSecond);
-                EXECUTOR_SERVICE.execute(() -> this.seleniumHandle(detailUrl));
+                log.info("【爬虫任务】页面{}加入Selenium处理队列！", detailUrl, retryWaitSecond);
+                SELENIUM_EXECUTOR.execute(() -> this.seleniumHandle(detailUrl));
                 break;
             }
         }
@@ -151,7 +161,7 @@ public class CrawlTask<T1, T2> {
         try {
             webDriver.manage().window().maximize();
             log.info("【爬虫任务-Selenium】开始处理页面{}...", detailPageUrl);
-            webDriver.navigate().to(detailPageUrl);
+            openPage(webDriver, detailPageUrl);
             CrawlTask.this.sleep(1, TimeUnit.SECONDS);
             Document detailDocument = Jsoup.parse(webDriver.getPageSource());
             if (detailPageParser.isNormalPage(detailDocument)) {
@@ -162,7 +172,7 @@ public class CrawlTask<T1, T2> {
                 log.info("【爬虫任务-Selenium】处理页面{}失败！", detailPageUrl);
             }
         } catch (Exception e) {
-            log.error("Selenium处理页面{}异常，e={}", detailPageUrl, ThrowableUtils.getThrowableStackTrace(e));
+            log.error("【爬虫任务-Selenium】处理页面{}异常，e={}", detailPageUrl, ThrowableUtils.getThrowableStackTrace(e));
         } finally {
             OptionalOperationUtils.consumeIfNonNull(webDriver, WebDriver::quit);
         }

@@ -70,7 +70,7 @@ public class BossListPageParser implements ListPageParser<SearchPositionInfoMsg>
                 case "hot-city-100010000":
                     cityMap.put(CityEnum.ALL.getCode(), liElement);
                     break;
-                case "101010100":
+                case "hot-city-101010100":
                     cityMap.put(CityEnum.BEIJING.getCode(), liElement);
                     break;
                 case "hot-city-101020100":

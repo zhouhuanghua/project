@@ -6,6 +6,7 @@ import cn.zhh.common.enums.DevelopmentStageEnum;
 import cn.zhh.common.enums.EducationEnum;
 import cn.zhh.common.enums.PositionSourceEnum;
 import cn.zhh.common.enums.WorkExpEnum;
+import cn.zhh.common.util.JsonUtils;
 import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.crawler.framework.DetailPageParser;
 import cn.zhh.crawler.service.MqProducer;
@@ -18,6 +19,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -120,7 +122,8 @@ public class BossDetailPageParser implements DetailPageParser<PositionInfoMsg> {
 
         Elements secElements = mainElement.selectFirst("div[class=detail-content]").select("div[class=job-sec]");
         // 职位描述
-        positionInfoMsg.setDescription(secElements.get(0).selectFirst("div[class=text]").text().replace("<br>", SysConsts.LINE_SEPARATOR));
+        String jobDescription = getJobDescription(secElements.get(0));
+        positionInfoMsg.setDescription(jobDescription);
         // 工作地址
         positionInfoMsg.setWorkAddress(secElements.last().selectFirst("div[class=job-location]").selectFirst("div[class=location-address]").text());
         // 公司简介
@@ -135,6 +138,11 @@ public class BossDetailPageParser implements DetailPageParser<PositionInfoMsg> {
     public void processObj(PositionInfoMsg positionInfoMsg) {
         convert(positionInfoMsg);
         mqProducer.sendPositionInfoMsg(positionInfoMsg);
+    }
+
+    private String getJobDescription(Element element) {
+        String text = element.selectFirst("div[class=text]").html();
+        return JsonUtils.toJson(Arrays.asList(text.split("\\n<br>")));
     }
 
     private void convert(PositionInfoMsg positionInfoMsg) {

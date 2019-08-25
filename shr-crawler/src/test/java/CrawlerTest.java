@@ -1,3 +1,5 @@
+import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
+import cn.zhh.common.enums.CityEnum;
 import cn.zhh.crawler.CrawlerApplication;
 import cn.zhh.crawler.service.PositionSearchService;
 import org.junit.Test;
@@ -57,5 +59,38 @@ public class CrawlerTest {
             System.out.println(calendar.getTime());
             System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime()));
         }
+    }
+
+    @Test
+    public void test04() {
+        String str = "aaaa<br>bbb";
+        String[] split = str.split("<br>");
+    }
+
+    @Test
+    public void test05() throws InterruptedException {
+        SearchPositionInfoMsg msg = new SearchPositionInfoMsg();
+        msg.setContent("java");
+        msg.setCity(CityEnum.BEIJING.getCode());
+        positionSearchService.lagouSearch(msg);
+        Thread.currentThread().join();
+    }
+
+    @Test
+    public void test06() throws InterruptedException {
+        SearchPositionInfoMsg msg = new SearchPositionInfoMsg();
+        msg.setContent("java");
+        msg.setCity(CityEnum.BEIJING.getCode());
+        positionSearchService.zhilianSearch(msg);
+        Thread.currentThread().join();
+    }
+
+    @Test
+    public void test07() throws InterruptedException {
+        SearchPositionInfoMsg msg = new SearchPositionInfoMsg();
+        msg.setContent("java");
+        msg.setCity(CityEnum.BEIJING.getCode());
+        positionSearchService.bossSearch(msg);
+        Thread.currentThread().join();
     }
 }

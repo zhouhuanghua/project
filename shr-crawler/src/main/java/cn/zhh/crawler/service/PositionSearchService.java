@@ -11,7 +11,6 @@ import cn.zhh.crawler.framework.zhilian.ZhilianDetailPageParser;
 import cn.zhh.crawler.framework.zhilian.ZhilianListPageParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
@@ -73,7 +72,7 @@ public class PositionSearchService {
         positionSet = new HashSet<>(positionList);
     }
 
-    @Scheduled(cron = "* * 0/6 * * ?")
+    //    @Scheduled(cron = "* * * 0/6 * ?")
     public void timeout() {
         log.info("定时任务-搜索职位 开始运行...");
         // 执行爬虫
@@ -83,17 +82,21 @@ public class PositionSearchService {
             for (Byte city : citySet) {
                 msg.setCity(city);
                 log.info("定时任务开始爬取，职位：{}，城市：{}", msg.getContent(), msg.getCity());
-                EXECUTOR_SERVICE.execute(() -> bossSearch(msg));
-                EXECUTOR_SERVICE.execute(() -> lagouSearch(msg));
-                EXECUTOR_SERVICE.execute(() -> zhilianSearch(msg));
+                allSearch(msg);
             }
         }
+    }
+
+    public void allSearch(SearchPositionInfoMsg searchPositionInfoMsg) {
+        EXECUTOR_SERVICE.execute(() -> bossSearch(searchPositionInfoMsg));
+        EXECUTOR_SERVICE.execute(() -> lagouSearch(searchPositionInfoMsg));
+        EXECUTOR_SERVICE.execute(() -> zhilianSearch(searchPositionInfoMsg));
     }
 
     public void bossSearch(SearchPositionInfoMsg searchPositionInfoMsg) {
         try {
             CrawlTask.newInstance(searchPositionInfoMsg, "https://www.zhipin.com/", bossListPageParser,
-                    5, bossDetailPageParser, 1, 30).start();
+                    5, bossDetailPageParser, 1, 5).start();
         } catch (Exception e) {
             log.error("boss搜索职位异常！", e);
         }
@@ -112,7 +115,7 @@ public class PositionSearchService {
     public void zhilianSearch(SearchPositionInfoMsg searchPositionInfoMsg) {
         try {
             CrawlTask.newInstance(searchPositionInfoMsg, "https://www.zhaopin.com/", zhilianListPageParser,
-                    3, zhilianDetailPageParser, 1, 10).start();
+                    3, zhilianDetailPageParser, 1, 5).start();
         } catch (IOException e) {
             log.error("zhilian搜索职位异常！", e);
         }
