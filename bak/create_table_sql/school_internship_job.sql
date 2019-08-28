@@ -6,8 +6,9 @@ CREATE TABLE `shr_school_internship_job` (
   `url` varchar(128) NOT NULL DEFAULT '' COMMENT '链接',
   `work_place` varchar(128) NOT NULL DEFAULT '' COMMENT '工作地点',
   `deadline` varchar(64) NOT NULL DEFAULT '' COMMENT '截至日期',
-  `introduce` varchar(8000) NOT NULL DEFAULT '' COMMENT '介绍',
-  `description` varchar(8000) NOT NULL DEFAULT '' COMMENT '描述',
+  `type` varchar(32) NOT NULL DEFAULT '' COMMENT '类别',
+  `introduce` varchar(3000) NOT NULL DEFAULT '' COMMENT '介绍',
+  `description` varchar(3000) NOT NULL DEFAULT '' COMMENT '描述',
   `creator` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `last_update_user` varchar(64) DEFAULT '' COMMENT '最后更新人',
@@ -15,4 +16,4 @@ CREATE TABLE `shr_school_internship_job` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除：1-是，0否',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `uk_unique_key` (`unique_key`,`is_deleted`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='校招-实习-岗位表';
+) ENGINE=InnoDB AUTO_INCREMENT=878 DEFAULT CHARSET=utf8mb4 COMMENT='校招-实习-岗位表';
