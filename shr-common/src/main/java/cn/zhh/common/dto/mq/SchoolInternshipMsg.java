@@ -15,40 +15,42 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class SchoolInternshipMsg extends BaseMqMessage implements Serializable {
 
-    /* 公司名称 */
+    /**
+     * 公司名称
+     */
     private String name;
 
-    /* 唯一标识 */
+    /** 唯一标识 */
     private String uniqueKey;
 
-    /* 链接 */
+    /** 链接 */
     private String url;
 
-    /* logo链接 */
+    /** logo链接 */
     private String logoUrl;
 
-    /* 工作地点 */
+    /** 工作地点 */
     private String workPlace;
 
-    /* 岗位类 */
+    /** 岗位行业 */
     private String industry;
 
-    /* 岗位数量 */
+    /** 岗位数量 */
     private Integer jobNum;
 
-    /* 有效期限 */
+    /** 有效期限 */
     private String expiryDate;
 
-    /* 介绍 */
+    /** 介绍 */
     private String introduce;
 
-    /* 标签 */
+    /** 标签 */
     private String label;
 
-    /* 招聘类型 */
+    /** 招聘类型 */
     private String hireType;
 
-    /* 岗位信息 */
+    /** 岗位信息 */
     private List<JobMsg> jobInfo;
 
     @Override
@@ -58,19 +60,23 @@ public class SchoolInternshipMsg extends BaseMqMessage implements Serializable {
 
     @Data
     public static class JobMsg {
-        /* 岗位链接 */
+        /** 岗位链接 */
         private String jobLink;
-        /* 岗位名称 */
+        /** 岗位名称 */
         private String jobName;
-        /* 岗位唯一标识*/
+        /** 岗位唯一标识*/
         private String jobUniqueKey;
-        /* 岗位工作地点 */
+        /** 岗位工作地点 */
         private String jobWorkPlace;
-        /* 岗位有效期限 */
+        /**
+         * 岗位类别
+         */
+        private String jobType;
+        /** 岗位有效期限 */
         private String jobDeadline;
-        /* 岗位介绍 */
+        /** 岗位介绍 */
         private String jobIntroduce;
-        /* 岗位描述 */
+        /** 岗位描述 */
         private String jobDescription;
     }
 }

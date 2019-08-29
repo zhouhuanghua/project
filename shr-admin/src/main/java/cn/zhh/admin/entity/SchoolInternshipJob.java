@@ -28,6 +28,8 @@ public class SchoolInternshipJob extends BaseEntity {
     @Column
     private String deadline;
     @Column
+    private String type;
+    @Column
     private String introduce;
     @Column
     private String description;

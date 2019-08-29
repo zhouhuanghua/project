@@ -1,8 +1,13 @@
 package cn.zhh.admin.service.db;
 
 import cn.zhh.admin.dao.db.SchoolInternshipJobDao;
+import cn.zhh.admin.dto.req.SchoolInternshipJobListReq;
+import cn.zhh.admin.dto.rsp.Response;
+import cn.zhh.admin.dto.rsp.SchoolInternshipJobDetailRsp;
+import cn.zhh.admin.dto.rsp.SchoolInternshipJobListRsp;
 import cn.zhh.admin.entity.SchoolInternshipJob;
 import cn.zhh.common.enums.IsDeletedEnum;
+import cn.zhh.common.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -11,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 校招-实习-岗位服务
@@ -22,11 +29,11 @@ import java.util.Optional;
 @Slf4j
 public class SchoolInternshipJobServiceImpl implements SchoolInternshipJobService {
     @Autowired
-    private SchoolInternshipJobDao schoolInternshipJobDao;
+    private SchoolInternshipJobDao jobDao;
 
     @Override
     public JpaRepository<SchoolInternshipJob, Long> dao() {
-        return schoolInternshipJobDao;
+        return jobDao;
     }
 
     @Override
@@ -51,5 +58,28 @@ public class SchoolInternshipJobServiceImpl implements SchoolInternshipJobServic
         }
 
         return save(entity);
+    }
+
+    @Override
+    public Response<List<SchoolInternshipJobListRsp>> queryJobList(SchoolInternshipJobListReq req) {
+        // 根据条件查询
+        List<SchoolInternshipJob> jobList = listByExample(buildExample(SchoolInternshipJob.class, "companyId", req.getCompanyId(), "type", req.getJobType()));
+        // 转换
+        List<SchoolInternshipJobListRsp> rspList = jobList.stream().map(job -> {
+            SchoolInternshipJobListRsp rsp = new SchoolInternshipJobListRsp();
+            BeanUtils.copyProperties(job, rsp);
+            return rsp;
+        })
+                .collect(Collectors.toList());
+        // 返回
+        return Response.ok(rspList);
+    }
+
+    @Override
+    public Response<SchoolInternshipJobDetailRsp> queryJobDetail(Long id) {
+        SchoolInternshipJob job = getById(id);
+        SchoolInternshipJobDetailRsp rsp = new SchoolInternshipJobDetailRsp();
+        BeanUtils.copyProperties(job, rsp);
+        return Response.ok(rsp);
     }
 }

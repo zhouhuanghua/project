@@ -37,4 +37,6 @@ public class SchoolInternshipCompany extends BaseEntity {
     private String label;
     @Column
     private String hireType;
+    @Column
+    private String jobTypes;
 }
