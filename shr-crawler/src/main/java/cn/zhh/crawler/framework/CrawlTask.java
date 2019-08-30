@@ -138,6 +138,9 @@ public class CrawlTask<T1, T2> {
     private void processItem(Document itemDocument) throws Exception {
         String detailUrl = detailPageParser.parseUrl(baseUrl, itemDocument);
         for (int count = 0; ; ++count) {
+            if (Objects.isNull(detailUrl)) {
+                continue;
+            }
             Document detailDocument = Jsoup.connect(detailUrl).headers(getCommonHeaderMap(detailUrl)).get();
             if (detailPageParser.isNormalPage(detailDocument)) {
                 T2 obj = detailPageParser.generateObj(detailUrl, detailDocument);

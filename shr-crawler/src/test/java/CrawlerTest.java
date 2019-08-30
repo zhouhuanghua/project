@@ -1,6 +1,9 @@
 import cn.zhh.common.dto.mq.SearchPositionInfoMsg;
 import cn.zhh.common.enums.CityEnum;
 import cn.zhh.crawler.CrawlerApplication;
+import cn.zhh.crawler.framework.CrawlTask;
+import cn.zhh.crawler.framework.skill.GaoboDetailPageParser;
+import cn.zhh.crawler.framework.skill.GaoboListPageParser;
 import cn.zhh.crawler.service.PositionSearchService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.regex.Matcher;
@@ -92,5 +96,18 @@ public class CrawlerTest {
         msg.setCity(CityEnum.BEIJING.getCode());
         positionSearchService.bossSearch(msg);
         Thread.currentThread().join();
+    }
+
+
+    @Autowired
+    private GaoboListPageParser gaoboListPageParser;
+    @Autowired
+    private GaoboDetailPageParser gaoboDetailPageParser;
+
+    @Test
+    public void testGaobo() throws IOException {
+        CrawlTask.newInstance(null, "http://www.gem-inno.com/skills.html",
+                gaoboListPageParser, 5, gaoboDetailPageParser, 1, 10)
+                .start();
     }
 }
