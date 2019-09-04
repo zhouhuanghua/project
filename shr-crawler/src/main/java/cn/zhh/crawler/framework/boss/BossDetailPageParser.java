@@ -176,8 +176,8 @@ public class BossDetailPageParser implements DetailPageParser<PositionInfoMsg> {
             }
         });
         // 学历转换
-        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
-            switch (workExp) {
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getEducation(), education -> {
+            switch (education) {
                 case "不限":
                     positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
                     break;

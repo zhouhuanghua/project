@@ -141,7 +141,14 @@ public class CrawlTask<T1, T2> {
             if (Objects.isNull(detailUrl)) {
                 continue;
             }
-            Document detailDocument = Jsoup.connect(detailUrl).headers(getCommonHeaderMap(detailUrl)).get();
+            Document detailDocument = null;
+            try {
+                detailDocument = Jsoup.connect(detailUrl).headers(getCommonHeaderMap(detailUrl)).get();
+            } catch (Exception e) {
+                log.info("【爬虫任务】页面{}访问抛出异常，加入Selenium处理队列！", detailUrl, retryWaitSecond);
+                SELENIUM_EXECUTOR.execute(() -> this.seleniumHandle(detailUrl));
+                break;
+            }
             if (detailPageParser.isNormalPage(detailDocument)) {
                 T2 obj = detailPageParser.generateObj(detailUrl, detailDocument);
                 detailPageParser.processObj(obj);

@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 拉勾详情页解析器
@@ -163,11 +164,26 @@ public class LagouDetailPageParser implements DetailPageParser<PositionInfoMsg> 
     }
 
     private String getJobDescription(Element element) {
-        List<String> lines = element.getElementsByTag("p").stream()
-                .map(Element::html)
-                .flatMap(html -> Arrays.stream(html.split("<br>")))
-                .collect(Collectors.toList());
-        return JsonUtils.toJson(lines);
+        Stream<String> lineStream;
+        // 只有br标签
+        boolean allBr = element.children().stream().allMatch(e -> Objects.equals(e.tagName(), "br"));
+        if (allBr) {
+            lineStream = Arrays.stream(element.html().split("<br>"));
+        }
+        // 有p标签
+        else {
+            lineStream = element.getElementsByTag("p").stream()
+                    .map(Element::html)
+                    .flatMap(html -> Arrays.stream(html.split("<br>")));
+        }
+        List<String> lineList = lineStream.map(line ->
+                line.replace("\n", "")
+                        .replace("&nbsp;", "")
+                        .replaceAll("<\\/*[a-zA-Z]+\\/*>", "")
+                        .trim()
+        )
+                .filter(StringUtils::hasText).collect(Collectors.toList());
+        return JsonUtils.toJson(lineList);
     }
 
     private void convert(PositionInfoMsg positionInfoMsg) {
@@ -201,8 +217,8 @@ public class LagouDetailPageParser implements DetailPageParser<PositionInfoMsg> 
             }
         });
         // 学历转换
-        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getWorkExp(), workExp -> {
-            switch (workExp) {
+        OptionalOperationUtils.consumeIfNotBlank(positionInfoMsg.getEducation(), education -> {
+            switch (education) {
                 case "学历不限":
                     positionInfoMsg.setEducation(EducationEnum.NOT_REQUIRED.getDescription());
                     break;

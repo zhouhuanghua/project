@@ -75,7 +75,7 @@ public class CrawlerTest {
     public void test05() throws InterruptedException {
         SearchPositionInfoMsg msg = new SearchPositionInfoMsg();
         msg.setContent("java");
-        msg.setCity(CityEnum.BEIJING.getCode());
+        msg.setCity(CityEnum.GUANGZHOU.getCode());
         positionSearchService.lagouSearch(msg);
         Thread.currentThread().join();
     }
@@ -93,9 +93,21 @@ public class CrawlerTest {
     public void test07() throws InterruptedException {
         SearchPositionInfoMsg msg = new SearchPositionInfoMsg();
         msg.setContent("java");
-        msg.setCity(CityEnum.BEIJING.getCode());
+        msg.setCity(CityEnum.SHENZHEN.getCode());
         positionSearchService.bossSearch(msg);
         Thread.currentThread().join();
+    }
+
+    @Test
+    public void test08() {
+        String str = "\\s*\n";
+        System.out.println("我是； \n".replaceAll(str, ""));
+    }
+
+    @Test
+    public void test09() {
+        String str = "<\\/*[a-zA-Z]+\\/*>";
+        System.out.println("<strong>你好</strong>".replaceAll(str, ""));
     }
 
 

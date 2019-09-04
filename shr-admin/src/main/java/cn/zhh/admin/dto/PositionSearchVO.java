@@ -22,7 +22,7 @@ public class PositionSearchVO {
 
     private String uniqueKey;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "ik_max_word")
     private String name;
 
     private Byte source;
@@ -41,7 +41,7 @@ public class PositionSearchVO {
 
     private Date publishTime;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "ik_max_word")
     private String companyName;
 
     private String companyLogo;
