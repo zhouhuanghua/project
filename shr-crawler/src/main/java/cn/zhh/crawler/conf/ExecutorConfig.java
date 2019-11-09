@@ -21,9 +21,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 public class ExecutorConfig {
 
-    @Bean("asyncServiceExecutor")
-    public Executor asyncServiceExecutor() {
-        log.info("start asyncServiceExecutor.......");
+    @Bean("asyncExecutor")
+    public Executor asyncExecutor() {
+        log.info("start asyncExecutor.......");
         ThreadPoolTaskExecutor executor = new VisiableThreadPoolTaskExecutor();
         // 配置核心线程数
         executor.setCorePoolSize(16);
@@ -32,7 +32,7 @@ public class ExecutorConfig {
         // 配置队列大小
         executor.setQueueCapacity(5000);
         // 配置线程池中的线程的名称前缀
-        executor.setThreadNamePrefix("automic-service-");
+        executor.setThreadNamePrefix("async-");
         // CALLER_RUNS：不在新线程中执行任务，而是有调用者所在的线程来执行
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         // 等待任务在关机时完成--表明等待所有线程执行完

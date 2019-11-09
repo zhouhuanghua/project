@@ -49,12 +49,11 @@ public class MqConsumer {
         // 处理消息
         String source = PositionSourceEnum.code2desc(positionInfoMsg.getSource());
         String name = positionInfoMsg.getName();
-        log.info("开始消费职位信息，来源：{}，名称：{}", source, name);
         try {
             positionInfoMsgService.process(positionInfoMsg);
-            log.info("职位(来源：{}，名称：{}) 消费成功！", source, name);
+            log.info("职位【来源：{}，名称：{}】消费成功！", source, name);
         } catch (Exception e) {
-            log.error(String.format("职位(来源：%s，名称：%s) 消费失败！", source, name), e);
+            log.error(String.format("职位【来源：%s，名称：%s】消费失败！", source, name), e);
         }
 
         // 手动签收消息

@@ -3,7 +3,6 @@ package cn.zhh.common.dto.mq;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -13,7 +12,7 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PositionInfoMsg extends BaseMqMessage implements Serializable {
+public class PositionInfoMsg extends BaseMqMessage {
 
     private String uniqueKey;
 

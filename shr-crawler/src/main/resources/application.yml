@@ -13,7 +13,13 @@ spring:
     # 消费者配置
     listener:
       simple:
-        concurrency: 1
+        concurrency: 5
         max-concurrency: 10
         acknowledge-mode: manual
-        prefetch: 1
+        prefetch: 100
+  redis:
+    host: thunderclap.cn
+# 日志
+logging:
+  level:
+    root: info

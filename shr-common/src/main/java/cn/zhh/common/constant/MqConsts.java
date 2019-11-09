@@ -7,11 +7,20 @@ package cn.zhh.common.constant;
  */
 public interface MqConsts {
 
-    /* admin发送职位搜索消息给crawler的交换机 */
-    String SEARCH_POSITION_INFO_TOPIC_EXCHANGE_NAME = "search_position_info_topic_exchange";
-
     /* 直连模式的交换机 */
     String DIRECT_EXCHANGE_NAME = "direct_exchange";
+
+    /* 职位链接的路由 */
+    String POSITION_URL_ROUTING_KEY = "position_url_routing_key";
+
+    /* 职位链接的队列 */
+    String POSITION_URL_QUEUE_NAME = "position_url_queue";
+
+    /* 职位链接补偿的路由 */
+    String POSITION_URL_COMPENSATE_ROUTING_KEY = "position_url_compensate_routing_key";
+
+    /* 职位链接补偿的队列 */
+    String POSITION_URL_COMPENSATE_QUEUE_NAME = "position_url_compensate_queue";
 
     /* 职位信息的路由 */
     String POSITION_INFO_ROUTING_KEY = "position_info_routing_key";

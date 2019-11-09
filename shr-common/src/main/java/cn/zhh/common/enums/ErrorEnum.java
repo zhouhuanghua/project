@@ -17,7 +17,8 @@ public enum ErrorEnum {
     DB_UPDATE_FAIL(-7, "db update fail"),
     ERROR_TO_JSON(-8, "error to json"),
     ERROR_FROM_JSON(-9, "error from json"),
-    BAD_REQUEST(-10, "bad request");
+    BAD_REQUEST(-10, "bad request"),
+    RECORD_IS_EMPTY(-11, "record is empty"),;
 
     private static final int BASE_NUM = 10_000;
     @Getter

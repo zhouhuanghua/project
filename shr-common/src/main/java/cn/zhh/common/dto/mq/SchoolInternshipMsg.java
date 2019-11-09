@@ -3,7 +3,6 @@ package cn.zhh.common.dto.mq;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -13,7 +12,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SchoolInternshipMsg extends BaseMqMessage implements Serializable {
+public class SchoolInternshipMsg extends BaseMqMessage {
 
     /**
      * 公司名称

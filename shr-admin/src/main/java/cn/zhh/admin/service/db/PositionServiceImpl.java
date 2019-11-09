@@ -45,7 +45,7 @@ public class PositionServiceImpl implements PositionService {
                 "uniqueKey", entity.getUniqueKey(), "isDeleted", IsDeletedEnum.NO.getCode());
         Optional<Position> positionOptional = getByExample(positionExample);
         if (positionOptional.isPresent()) {
-            log.info("岗位{}已经存在！", entity.getUniqueKey());
+            log.info("岗位【{}】已经存在！", entity.getUniqueKey());
             entity.setId(positionOptional.get().getId());
         }
         return save(entity);

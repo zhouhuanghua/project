@@ -40,7 +40,7 @@ public class CompanyServiceImpl implements CompanyService {
                 "name", entity.getName(), "isDeleted", IsDeletedEnum.NO.getCode());
         Optional<Company> companyOptional = getByExample(companyExample);
         if (companyOptional.isPresent()) {
-            log.info("公司{}已经存在！", entity.getName());
+            log.info("公司【{}】已经存在！", entity.getName());
             entity.setId(companyOptional.get().getId());
         }
         // 长度截取
