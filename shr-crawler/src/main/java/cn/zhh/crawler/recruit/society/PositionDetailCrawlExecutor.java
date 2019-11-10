@@ -58,9 +58,8 @@ public class PositionDetailCrawlExecutor implements ApplicationContextAware {
     }
 
     public void consumeBySelenium(PositionUrlMsg positionUrlMsg) throws IOException {
-        WebDriver webDriver = BrowserDriverFactory.openChromeBrowser();
+        WebDriver webDriver = BrowserDriverFactory.openJBrowser();
         try {
-            //webDriver.manage().window().maximize();
             for (int i = 1; i <= 2; ++i) {
                 webDriver.get(positionUrlMsg.getDetailUrl());
                 SleepUtils.sleepSeconds(2);

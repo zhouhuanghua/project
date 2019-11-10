@@ -40,15 +40,17 @@ public class PositionServiceImpl implements PositionService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Position insert(Position entity) {
-        // 判断是否已经存在，如果存在则更新，否则插入
-        Example<Position> positionExample = buildExample(Position.class, "source", entity.getSource(),
-                "uniqueKey", entity.getUniqueKey(), "isDeleted", IsDeletedEnum.NO.getCode());
-        Optional<Position> positionOptional = getByExample(positionExample);
-        if (positionOptional.isPresent()) {
-            log.info("岗位【{}】已经存在！", entity.getUniqueKey());
-            entity.setId(positionOptional.get().getId());
+        synchronized (entity.getSource() + entity.getUniqueKey()) {
+            // 判断是否已经存在，如果存在则更新，否则插入
+            Example<Position> positionExample = buildExample(Position.class, "source", entity.getSource(),
+                    "uniqueKey", entity.getUniqueKey(), "isDeleted", IsDeletedEnum.NO.getCode());
+            Optional<Position> positionOptional = getByExample(positionExample);
+            if (positionOptional.isPresent()) {
+                log.info("岗位【{}】已经存在！", entity.getUniqueKey());
+                entity.setId(positionOptional.get().getId());
+            }
+            return save(entity);
         }
-        return save(entity);
     }
 
     @Override

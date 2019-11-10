@@ -1,5 +1,6 @@
 package cn.zhh.crawler.recruit.society;
 
+import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.enums.DevelopmentStageEnum;
 import cn.zhh.common.enums.EducationEnum;
@@ -17,8 +18,6 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * TODO
@@ -93,7 +92,7 @@ public class LagouPositionDetailCrawlService implements PositionDetailCrawlServi
         positionInfoMsg.setWelfare(advantage);
 
         // 职位描述
-        String jobDescription = getJobDescription(detailDocument.selectFirst("div[class=job-detail]"));
+        String jobDescription = getJobDescription(detailDocument.selectFirst("dd[class=job_bt]"));
         positionInfoMsg.setDescription(jobDescription);
 
         // 工作地址
@@ -151,25 +150,17 @@ public class LagouPositionDetailCrawlService implements PositionDetailCrawlServi
     }
 
     private String getJobDescription(Element element) {
-        Stream<String> lineStream;
-        // 只有br标签
-        boolean allBr = element.children().stream().allMatch(e -> Objects.equals(e.tagName(), "br"));
-        if (allBr) {
-            lineStream = Arrays.stream(element.html().split("<br>"));
-        }
-        // 有p标签
-        else {
-            lineStream = element.getElementsByTag("p").stream()
-                    .map(Element::html)
-                    .flatMap(html -> Arrays.stream(html.split("<br>")));
-        }
-        List<String> lineList = lineStream.map(line ->
-                line.replace("\n", "")
-                        .replace("&nbsp;", "")
-                        .replaceAll("<\\/*[a-zA-Z]+\\/*>", "")
-                        .trim()
-        )
-                .filter(StringUtils::hasText).collect(Collectors.toList());
+        List<String> lineList = new ArrayList<>();
+        OptionalOperationUtils.consumeIfNonNull(element.selectFirst("div[class=job-detail]"), detail -> {
+            String text = detail.html()
+                    // <p>段落替换为换行
+                    .replaceAll("<p .*?>", SysConsts.LINE_SEPARATOR)
+                    // <br><br/>替换为换行
+                    .replaceAll("<br\\s*/?>", SysConsts.LINE_SEPARATOR)
+                    // 去掉其它的<>之间的东西
+                    .replaceAll("\\<.*?>", "");
+            lineList.addAll(Arrays.asList(text.split(SysConsts.LINE_SEPARATOR)));
+        });
         return JsonUtils.toJson(lineList);
     }
 

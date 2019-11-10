@@ -15,6 +15,7 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -121,8 +122,18 @@ public class BossPositionDetailCrawlService implements PositionDetailCrawlServic
     }
 
     private String getJobDescription(Element element) {
-        String text = element.selectFirst("div[class=text]").html();
-        return JsonUtils.toJson(Arrays.asList(text.split("\\n<br>")));
+        List<String> lineList = new ArrayList<>();
+        OptionalOperationUtils.consumeIfNonNull(element.selectFirst("div[class=text]"), detail -> {
+            String text = detail.html()
+                    // <p>段落替换为换行
+                    .replaceAll("<p .*?>", SysConsts.LINE_SEPARATOR)
+                    // <br><br/>替换为换行
+                    .replaceAll("<br\\s*/?>", SysConsts.LINE_SEPARATOR)
+                    // 去掉其它的<>之间的东西
+                    .replaceAll("\\<.*?>", "");
+            lineList.addAll(Arrays.asList(text.split(SysConsts.LINE_SEPARATOR)));
+        });
+        return JsonUtils.toJson(lineList);
     }
 
     @Override

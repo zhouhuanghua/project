@@ -37,7 +37,7 @@ public class PositionInfoMsgServiceImpl implements PositionInfoMsgService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void process(PositionInfoMsg positionInfoMsg) {
+    public void process(PositionInfoMsg positionInfoMsg) {
         // 1、插入公司记录
         Company company = new Company();
         BeanUtils.copySelectedProperties(positionInfoMsg, company,

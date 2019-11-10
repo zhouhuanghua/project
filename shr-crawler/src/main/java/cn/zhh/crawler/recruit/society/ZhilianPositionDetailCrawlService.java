@@ -1,5 +1,6 @@
 package cn.zhh.crawler.recruit.society;
 
+import cn.zhh.common.constant.SysConsts;
 import cn.zhh.common.dto.mq.PositionInfoMsg;
 import cn.zhh.common.enums.DevelopmentStageEnum;
 import cn.zhh.common.enums.EducationEnum;
@@ -11,12 +12,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * TODO
@@ -124,24 +123,18 @@ public class ZhilianPositionDetailCrawlService implements PositionDetailCrawlSer
     }
 
     private String getJobDescription(Element element) {
-        List<Element> elementList = recursionAllChildren(element);
-        List<String> lineList = elementList.stream().map(Element::text).filter(StringUtils::hasText).collect(Collectors.toList());
+        List<String> lineList = new ArrayList<>();
+        OptionalOperationUtils.consumeIfNonNull(element.selectFirst("div[class=describtion__detail-content]"), detail -> {
+            String text = detail.html()
+                    // <p>段落替换为换行
+                    .replaceAll("<p .*?>", SysConsts.LINE_SEPARATOR)
+                    // <br><br/>替换为换行
+                    .replaceAll("<br\\s*/?>", SysConsts.LINE_SEPARATOR)
+                    // 去掉其它的<>之间的东西
+                    .replaceAll("\\<.*?>", "");
+            lineList.addAll(Arrays.asList(text.split(SysConsts.LINE_SEPARATOR)));
+        });
         return JsonUtils.toJson(lineList);
-    }
-
-    private List<Element> recursionAllChildren(Element element) {
-        if (Objects.isNull(element)) {
-            return Collections.emptyList();
-        }
-        Elements children = element.children();
-        if (children.isEmpty()) {
-            return Collections.singletonList(element);
-        }
-        List<Element> elementList = new ArrayList<>();
-        for (Element e : children) {
-            elementList.addAll(recursionAllChildren(e));
-        }
-        return elementList;
     }
 
     @Override
