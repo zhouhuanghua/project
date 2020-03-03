@@ -1,6 +1,10 @@
 package cn.zhh.crawler.runner;
 
 import cn.zhh.crawler.constant.Consts;
+import com.machinepublishers.jbrowserdriver.JBrowserDriver;
+import com.machinepublishers.jbrowserdriver.Settings;
+import com.machinepublishers.jbrowserdriver.Timezone;
+import com.machinepublishers.jbrowserdriver.UserAgent;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -17,7 +21,7 @@ public class BrowserDriverFactory {
     private static final ChromeOptions CHROME_OPTIONS = new ChromeOptions();
 
     static {
-        System.setProperty("webdriver.chrome.driver", "D:\\IdeaProjects\\project\\project-crawler\\src\\main\\resources\\static\\chromedriver80.exe");
+        System.setProperty("webdriver.chrome.driver", "src/main/resources/static/chromedriver80.exe");
         CHROME_OPTIONS.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
     }
     private BrowserDriverFactory() {
@@ -26,6 +30,14 @@ public class BrowserDriverFactory {
 
     public static WebDriver openChromeBrowser() {
         WebDriver webDriver = new ChromeDriver(CHROME_OPTIONS);
+        initializeSetup(webDriver);
+        return webDriver;
+    }
+
+    public static WebDriver openJBrowser() {
+        WebDriver webDriver = new JBrowserDriver(Settings.builder()
+                .timezone(Timezone.ASIA_SHANGHAI)
+                .userAgent(UserAgent.CHROME).build());
         initializeSetup(webDriver);
         return webDriver;
     }
