@@ -1,6 +1,6 @@
 package cn.zhh.crawler.runner;
 
-import cn.zhh.crawler.constant.Consts;
+import cn.zhh.crawler.constant.CrawlerConsts;
 import com.machinepublishers.jbrowserdriver.JBrowserDriver;
 import com.machinepublishers.jbrowserdriver.Settings;
 import com.machinepublishers.jbrowserdriver.Timezone;
@@ -21,7 +21,8 @@ public class BrowserDriverFactory {
     private static final ChromeOptions CHROME_OPTIONS = new ChromeOptions();
 
     static {
-        System.setProperty("webdriver.chrome.driver", "src/main/resources/static/chromedriver80.exe");
+        String classesPath = BrowserDriverFactory.class.getClassLoader().getResource("").getPath();
+        System.setProperty("webdriver.chrome.driver", classesPath.substring(1) + "static/chromedriver80.exe");
         CHROME_OPTIONS.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
     }
     private BrowserDriverFactory() {
@@ -43,8 +44,8 @@ public class BrowserDriverFactory {
     }
 
     private static void initializeSetup(WebDriver webDriver) {
-        webDriver.manage().timeouts().pageLoadTimeout(Consts.BROWSER_OPENPAGE_TIMEOUT_VALUE, Consts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
-        webDriver.manage().timeouts().setScriptTimeout(Consts.BROWSER_OPENPAGE_TIMEOUT_VALUE, Consts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
-        webDriver.manage().timeouts().implicitlyWait(Consts.BROWSER_OPENPAGE_TIMEOUT_VALUE, Consts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
+        webDriver.manage().timeouts().pageLoadTimeout(CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_VALUE, CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
+        webDriver.manage().timeouts().setScriptTimeout(CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_VALUE, CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
+        webDriver.manage().timeouts().implicitlyWait(CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_VALUE, CrawlerConsts.BROWSER_OPENPAGE_TIMEOUT_UNIT);
     }
 }

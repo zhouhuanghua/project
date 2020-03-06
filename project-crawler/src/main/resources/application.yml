@@ -30,5 +30,5 @@ spring:
         prefetch: 5
 # 日志
 logging:
-  level:
-    root: info
+  config: classpath:logback.xml
+  file: ad-search.log
