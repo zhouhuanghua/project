@@ -2,10 +2,12 @@ package cn.zhh.crawler.runner;
 
 import cn.zhh.common.constant.Consts;
 import cn.zhh.common.dto.PositionInfo;
+import cn.zhh.common.util.JsonUtils;
 import cn.zhh.common.util.OptionalOperationUtils;
 import cn.zhh.crawler.chain.*;
 import cn.zhh.crawler.dto.UrlDTO;
 import cn.zhh.crawler.mq.MqProducer;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,8 +19,10 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -146,17 +150,19 @@ public class ParseDetailRunner {
     }
 
     private String getJobDescription(Element element) {
-        StringBuilder sb = new StringBuilder();
+        List<String> lineList = Lists.newArrayList();
         OptionalOperationUtils.consumeIfNonNull(element.selectFirst("div[class=job-detail]"), detail -> {
             String text = detail.html()
-                    // <p>段落替换为换行
-                    .replaceAll("<p .*?>", Consts.LINE_SEPARATOR)
-                    // <br><br/>替换为换行
-                    .replaceAll("<br\\s*/?>", Consts.LINE_SEPARATOR)
-                    // 去掉其它的<>之间的东西
-                    .replaceAll("\\<.*?>", "");
-            sb.append(text);
+                // <p>段落替换为换行
+                .replaceAll("<p.*?>", Consts.LINE_SEPARATOR)
+                // <br><br/>替换为换行
+                .replaceAll("<br\\s*/?>", Consts.LINE_SEPARATOR)
+                // 去掉其它的<>之间的东西
+                .replaceAll("\\<.*?>", "")
+                // 去掉&nbsp;
+                .replaceAll("&nbsp;", "");
+            Arrays.stream(text.split(Consts.LINE_SEPARATOR)).filter(StringUtils::hasText).forEach(lineList::add);
         });
-        return sb.toString();
+        return JsonUtils.toJson(lineList);
     }
 }

@@ -17,4 +17,8 @@ public class UrlDTO {
     private String url;
 
     private Integer retryCount;
+
+    public String toSimpleString() {
+        return url + "[" + retryCount + "]";
+    }
 }

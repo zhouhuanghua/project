@@ -49,4 +49,8 @@ public class PositionInfo {
     private String companyUrl;
 
     private String companyIntroduction;
+
+    public String toSimpleString() {
+        return uniqueKey + "【" + name + "#" + companyName + "】";
+    }
 }

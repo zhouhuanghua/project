@@ -41,7 +41,7 @@ public class Dao {
         String uniqueKey = positionInfo.getUniqueKey();
         if (BLOOM_FILTER.contains(uniqueKey)
                 && (jdbcTemplate.queryForObject(COUTN_SQL, new Object[]{uniqueKey}, Integer.class) > 0)) {
-            log.info("职位已存在，uniqueKey={}", uniqueKey);
+            log.info("职位{}已存在。", positionInfo.toSimpleString());
             return;
         }
         setDefValIfNull(positionInfo);

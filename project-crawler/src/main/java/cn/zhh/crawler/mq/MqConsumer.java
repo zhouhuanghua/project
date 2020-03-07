@@ -38,7 +38,7 @@ public class MqConsumer {
     @RabbitHandler
     public void consumePositionUrl(@Payload String message, @Headers Map<String, Object> headers, Channel channel) throws Exception {
         UrlDTO urlDTO = JsonUtils.fromJson(message, UrlDTO.class);
-        log.info("消费职位链接，urlDTO=[{}]", urlDTO);
+        log.info("消费职位链接{}", urlDTO.toSimpleString());
         // 处理消息
         parseDetailRunner.parseDetail(urlDTO);
         // 手动签收消息
@@ -50,7 +50,7 @@ public class MqConsumer {
     @RabbitHandler
     public void consumePositionDetail(@Payload String message, @Headers Map<String, Object> headers, Channel channel) throws Exception {
         PositionInfo positionInfo = JsonUtils.fromJson(message, PositionInfo.class);
-        log.info("消费职位详情，detail=[{}]", positionInfo.getCompanyName() + "-" + positionInfo.getName());
+        log.info("消费职位详情{}", positionInfo.toSimpleString());
         // 处理消息
         try {
             dao.insertDb(positionInfo);

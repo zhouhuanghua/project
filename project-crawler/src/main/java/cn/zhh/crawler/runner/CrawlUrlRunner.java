@@ -46,11 +46,12 @@ public class CrawlUrlRunner {
                     String detailUrl = itemDocument.selectFirst("a[class=position_link]").attr("href");
                     mqProducer.sendUrl(new UrlDTO(detailUrl, CrawlerConsts.URL_RETRY_COUNT));
                 }
-                WebElement nextPageElement = nextPage(webDriver);
-                if (Objects.isNull(nextPageElement)) {
+                WebElement nextPageElement;
+                if (Objects.equals(index, pageNum - 1) || Objects.isNull(nextPageElement = nextPage(webDriver))) {
                     break;
                 }
                 nextPageElement.click();
+                SleepUtils.sleepSeconds(3);
             }
         } catch (Throwable t) {
             log.error("爬取链接异常，t={}", ThrowableUtils.getStackTrace(t));
@@ -60,6 +61,7 @@ public class CrawlUrlRunner {
     }
 
     private void selectCity(WebDriver webDriver, CityEnum city) {
+        SleepUtils.sleepSeconds(1);
         List<WebElement> aElements = webDriver.findElement(By.id("changeCityBox")).findElements(By.tagName("a"));
         String cityName = city.getDesc();
         for (WebElement aElement : aElements) {
@@ -84,6 +86,7 @@ public class CrawlUrlRunner {
             orderElement.findElement(By.cssSelector("li[class=wrapper]"))
                     .findElement(By.tagName("div")).findElements(By.tagName("a")).get(1).click();
         });
+        SleepUtils.sleepSeconds(1);
     }
 
     private List<Document> generateItems(Document document) {

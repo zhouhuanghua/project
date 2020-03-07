@@ -25,14 +25,14 @@ public class MqProducer {
     private RabbitTemplate rabbitTemplate;
 
     public void sendUrl(UrlDTO urlDTO) {
-        log.info("发送职位链接至MQ，url=[{}]", urlDTO.getUrl());
+        log.info("发送职位链接{}至MQ。", urlDTO.toSimpleString());
         CorrelationData correlationData = new CorrelationData();
         correlationData.setId(UUID.randomUUID().toString());
         rabbitTemplate.convertAndSend(CrawlerConsts.MQ_EXCHANGE_NAME, CrawlerConsts.URL_ROUTING_KEY, JsonUtils.toJson(urlDTO), correlationData);
     }
 
     public void sendDetail(PositionInfo positionInfo) {
-        log.info("发送职位详情至MQ，positionDetail=[{}]", positionInfo.getCompanyName() + "-" + positionInfo.getName());
+        log.info("发送职位详情{}至MQ。", positionInfo.toSimpleString());
         CorrelationData correlationData = new CorrelationData();
         correlationData.setId(positionInfo.getUniqueKey());
         rabbitTemplate.convertAndSend(CrawlerConsts.MQ_EXCHANGE_NAME, CrawlerConsts.DETAIL_ROUTING_KEY, JsonUtils.toJson(positionInfo), correlationData);

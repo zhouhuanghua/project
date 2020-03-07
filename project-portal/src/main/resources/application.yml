@@ -1,44 +1,21 @@
 # 端口
 server:
   servlet:
-    context-path: /shr
+    context-path: /portal
   port: 8888
 
 spring:
-  # DB配置
-  datasource:
-    url: jdbc:mysql://thunderclap.cn:9527/shr?useUnicode=true&characterEncoding=UTF-8&useSSL=false
-    username: root
-    password: 123456
-    hikari:
-      connection-test-query: SELECT 1
-      minimum-idle: 10
-      maximum-pool-size: 100
-      connection-timeout: 10000
-      idle-timeout: 30000
-  # RabbitMQ配置
-  rabbitmq:
-    addresses: 139.155.14.94:5672
-    username: shr
-    password: swun6237
-    virtual-host: shr
-    connection-timeout: 10_000
-    # 消费者配置
-    listener:
-      simple:
-        concurrency: 3
-        max-concurrency: 5
-        acknowledge-mode: manual
-        prefetch: 10
   data:
     # elasticsearch
     elasticsearch:
       cluster-name: docker-cluster
-      cluster-nodes: 139.155.14.94:9300
+      cluster-nodes: thunderclap.cn:9300
       repositories:
         enabled: true
-    # mongodb
-#    mongodb:
-#      host: thunderclap.cn
-#      port: 27017
-#      database: shr
+
+binlog:
+  host: thunderclap.cn
+  port: 3306
+  schema: project
+  username: zhh
+  password: 123456

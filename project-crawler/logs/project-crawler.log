@@ -502,3 +502,155 @@ Session ID: 076c439d963ae6ca11cce927672a80ce
 [2020-03-07 00:33:37:846] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6770765.html?show=1e67d234bf724c869c4c040f27f8d369, retryCount=3)]
 [2020-03-07 00:33:38:131] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6470895.html?show=1e67d234bf724c869c4c040f27f8d369, retryCount=3)]
 [2020-03-07 00:33:38:454] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6267132.html?show=1e67d234bf724c869c4c040f27f8d369, retryCount=3)]
+[2020-03-07 16:42:17:927] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 16528 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:42:17:932] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:42:28:931] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州知矣教育科技有限公司-技术总监（Java）]
+[2020-03-07 16:42:28:978] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 11.644 seconds (JVM running for 13.684)
+[2020-03-07 16:42:29:032] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6816453.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:42:31:543] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州华多网络科技有限公司-Java开发工程师（电商） (MJ000969)]
+[2020-03-07 16:42:31:630] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6413692.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:42:31:968] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州瑞云网络科技有限公司-Java高级开发工程师]
+[2020-03-07 16:42:31:970] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5993156.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:42:32:307] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州锐森网络科技有限公司-Java开发工程师/Java后台工程师]
+[2020-03-07 16:42:32:309] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5094130.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:42:32:616] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广汽蔚来新能源汽车科技有限公司-Java开发工程师]
+[2020-03-07 16:42:32:617] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6862063.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:42:32:866] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广东中视信息科技有限公司-java高级工程师]
+[2020-03-07 16:42:54:350] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 15100 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:42:54:368] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:43:01:544] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 7.687 seconds (JVM running for 9.301)
+[2020-03-07 16:43:01:570] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6371989.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:01:574] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州华多网络科技有限公司-Java开发工程师（电商） (MJ000969)]
+[2020-03-07 16:43:02:238] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州瑞云网络科技有限公司-Java高级开发工程师]
+[2020-03-07 16:43:02:271] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州锐森网络科技有限公司-Java开发工程师/Java后台工程师]
+[2020-03-07 16:43:02:298] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广汽蔚来新能源汽车科技有限公司-Java开发工程师]
+[2020-03-07 16:43:02:327] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广东中视信息科技有限公司-java高级工程师]
+[2020-03-07 16:43:04:359] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5731909.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:04:938] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6730975.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:05:205] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6334257.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:05:490] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6816426.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:44:974] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 31908 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:43:44:980] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:43:52:818] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 8.513 seconds (JVM running for 10.198)
+[2020-03-07 16:43:52:837] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6371989.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:55:348] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州喵星人网络科技有限公司-java开发工程师]
+[2020-03-07 16:43:55:399] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5731909.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:55:431] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州喵星人网络科技有限公司-java开发工程师]
+[2020-03-07 16:43:55:738] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州伊智信息科技有限公司-高级java开发工程师]
+[2020-03-07 16:43:55:739] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6730975.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:56:044] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州伊智信息科技有限公司-高级java开发工程师]
+[2020-03-07 16:43:56:068] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广东梵大集团有限公司-java架构师]
+[2020-03-07 16:43:56:072] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6334257.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:56:097] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广东梵大集团有限公司-java架构师]
+[2020-03-07 16:43:56:384] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州鼎盛互动网络科技有限公司-java游戏服务器开发工程师]
+[2020-03-07 16:43:56:386] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6816426.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:43:56:408] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州鼎盛互动网络科技有限公司-java游戏服务器开发工程师]
+[2020-03-07 16:43:56:764] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州线条信息科技有限公司-java开发工程师]
+[2020-03-07 16:43:56:785] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州线条信息科技有限公司-java开发工程师]
+[2020-03-07 16:44:17:746] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 31636 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:44:17:752] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:44:24:851] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 7.659 seconds (JVM running for 9.116)
+[2020-03-07 16:44:24:854] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5964765.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:44:27:484] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6818011.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:44:27:925] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5837838.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:44:28:192] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6160597.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:44:28:467] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6838390.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:50:05:003] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 32408 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:50:05:009] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:50:13:164] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 8.783 seconds (JVM running for 10.653)
+[2020-03-07 16:50:13:252] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5964765.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:50:15:458] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州云徙科技有限公司-Java架构师]
+[2020-03-07 16:50:15:499] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6818011.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:50:15:851] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州城电客户服务有限公司-Java 技术主管]
+[2020-03-07 16:50:15:853] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5837838.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:50:16:184] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[上海益玩网络科技有限公司广州分公司-高级Java开发工程师]
+[2020-03-07 16:50:16:185] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6160597.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:50:16:534] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广东德生科技股份有限公司-Java高级开发工程师]
+[2020-03-07 16:50:16:538] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6838390.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:50:16:889] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州知矣教育科技有限公司-技术总监（Java）]
+[2020-03-07 16:51:34:390] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 32176 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:51:34:394] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:51:41:464] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 7.61 seconds (JVM running for 9.178)
+[2020-03-07 16:51:41:473] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州云徙科技有限公司-Java架构师]
+[2020-03-07 16:51:41:477] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6816453.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:51:42:276] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州城电客户服务有限公司-Java 技术主管]
+[2020-03-07 16:51:42:315] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[上海益玩网络科技有限公司广州分公司-高级Java开发工程师]
+[2020-03-07 16:51:42:349] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广东德生科技股份有限公司-Java高级开发工程师]
+[2020-03-07 16:51:42:381] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州知矣教育科技有限公司-技术总监（Java）]
+[2020-03-07 16:51:42:593] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.runner.Dao 73 - 唯一键冲突，uniqueKey=6838390
+[2020-03-07 16:51:44:277] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州华多网络科技有限公司-Java开发工程师（电商） (MJ000969)]
+[2020-03-07 16:51:44:341] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6413692.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:51:44:733] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州瑞云网络科技有限公司-Java高级开发工程师]
+[2020-03-07 16:51:44:734] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5993156.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:51:45:133] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州锐森网络科技有限公司-Java开发工程师/Java后台工程师]
+[2020-03-07 16:51:45:134] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5094130.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:51:45:443] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广汽蔚来新能源汽车科技有限公司-Java开发工程师]
+[2020-03-07 16:51:45:444] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6862063.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:51:45:809] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广东中视信息科技有限公司-java高级工程师]
+[2020-03-07 16:52:06:721] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 17456 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:52:06:777] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:52:15:042] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 8.958 seconds (JVM running for 10.981)
+[2020-03-07 16:52:15:140] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6371989.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:52:15:148] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州华多网络科技有限公司-Java开发工程师（电商） (MJ000969)]
+[2020-03-07 16:53:26:109] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 4900 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:53:26:115] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:53:34:989] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6371989.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:53:35:067] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州华多网络科技有限公司-Java开发工程师（电商） (MJ000969)]
+[2020-03-07 16:53:35:069] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 9.567 seconds (JVM running for 11.56)
+[2020-03-07 16:53:36:784] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.runner.Dao 73 - 唯一键冲突，uniqueKey=6816453
+[2020-03-07 16:53:36:787] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州瑞云网络科技有限公司-Java高级开发工程师]
+[2020-03-07 16:53:36:872] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.runner.Dao 73 - 唯一键冲突，uniqueKey=6413692
+[2020-03-07 16:53:36:876] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州锐森网络科技有限公司-Java开发工程师/Java后台工程师]
+[2020-03-07 16:53:36:950] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.runner.Dao 73 - 唯一键冲突，uniqueKey=5993156
+[2020-03-07 16:53:36:957] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广汽蔚来新能源汽车科技有限公司-Java开发工程师]
+[2020-03-07 16:53:36:999] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.runner.Dao 73 - 唯一键冲突，uniqueKey=5094130
+[2020-03-07 16:53:37:000] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广东中视信息科技有限公司-java高级工程师]
+[2020-03-07 16:53:37:027] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.runner.Dao 73 - 唯一键冲突，uniqueKey=6862063
+[2020-03-07 16:53:51:032] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州喵星人网络科技有限公司-java开发工程师]
+[2020-03-07 16:55:02:653] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 27860 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:55:02:659] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:55:11:121] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 9.269 seconds (JVM running for 11.407)
+[2020-03-07 16:55:11:160] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6371989.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:55:11:176] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州喵星人网络科技有限公司-java开发工程师]
+[2020-03-07 16:55:12:235] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.runner.Dao 73 - 唯一键冲突，uniqueKey=6371989
+[2020-03-07 16:55:14:261] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州喵星人网络科技有限公司-java开发工程师]
+[2020-03-07 16:55:14:307] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/5731909.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:55:14:329] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州喵星人网络科技有限公司-java开发工程师]
+[2020-03-07 16:55:14:360] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.runner.Dao 44 - 职位已存在，uniqueKey=6371989
+[2020-03-07 16:55:14:639] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广州伊智信息科技有限公司-高级java开发工程师]
+[2020-03-07 16:55:14:641] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqConsumer 41 - 消费职位链接，urlDTO=[UrlDTO(url=https://www.lagou.com/jobs/6730975.html?show=4ea6f520145e433db19792a5223187b2, retryCount=3)]
+[2020-03-07 16:55:14:670] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广州伊智信息科技有限公司-高级java开发工程师]
+[2020-03-07 16:55:14:694] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.runner.Dao 73 - 唯一键冲突，uniqueKey=5731909
+[2020-03-07 16:55:14:996] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-1 INFO cn.zhh.crawler.mq.MqProducer 35 - 发送职位详情至MQ，positionDetail=[广东梵大集团有限公司-java架构师]
+[2020-03-07 16:55:15:026] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.mq.MqConsumer 53 - 消费职位详情，detail=[广东梵大集团有限公司-java架构师]
+[2020-03-07 16:55:15:050] org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-1 INFO cn.zhh.crawler.runner.Dao 73 - 唯一键冲突，uniqueKey=6730975
+[2020-03-07 16:55:36:129] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 4580 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:55:36:136] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:55:44:355] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 8.936 seconds (JVM running for 10.866)
+[2020-03-07 16:56:26:724] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 23356 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:56:26:730] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:56:34:546] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 8.455 seconds (JVM running for 10.495)
+[2020-03-07 16:57:17:271] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 8776 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:57:17:278] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:57:25:179] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 8.616 seconds (JVM running for 10.667)
+[2020-03-07 16:58:53:866] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 5136 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 16:58:53:872] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 16:59:01:880] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 8.697 seconds (JVM running for 10.702)
+[2020-03-07 17:00:47:090] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 26356 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 17:00:47:099] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 17:00:55:631] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 9.24 seconds (JVM running for 11.114)
+[2020-03-07 17:03:23:316] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 32000 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 17:03:23:344] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 17:03:30:288] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 7.653 seconds (JVM running for 9.327)
+[2020-03-07 17:03:52:883] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 27200 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 17:03:52:888] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 17:03:59:955] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 7.649 seconds (JVM running for 9.368)
+[2020-03-07 17:04:20:751] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 13540 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 17:04:20:778] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 17:04:28:861] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 8.699 seconds (JVM running for 10.221)
+[2020-03-07 17:05:40:198] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 4444 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 17:05:40:207] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 17:05:46:911] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 7.265 seconds (JVM running for 8.776)
+[2020-03-07 17:06:39:291] main INFO cn.zhh.crawler.MyTest 50 - Starting MyTest on z_hh with PID 13280 (started by z_hh in D:\IdeaProjects\project\project-crawler)
+[2020-03-07 17:06:39:296] main INFO cn.zhh.crawler.MyTest 646 - No active profile set, falling back to default profiles: default
+[2020-03-07 17:06:49:240] main INFO cn.zhh.crawler.MyTest 59 - Started MyTest in 10.492 seconds (JVM running for 11.962)
