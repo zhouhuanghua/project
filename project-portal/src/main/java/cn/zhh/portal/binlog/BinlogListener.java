@@ -1,10 +1,10 @@
 package cn.zhh.portal.binlog;
 
-import cn.zhh.common.dto.PositionInfo;
 import cn.zhh.common.util.ThrowableUtils;
 import cn.zhh.portal.constant.PortalConsts;
 import cn.zhh.portal.dto.PositionSearchVO;
 import cn.zhh.portal.service.IPositionSearchService;
+import cn.zhh.portal.util.ObjCopyUtils;
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.event.*;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -64,31 +65,14 @@ public class BinlogListener implements BinaryLogClient.EventListener, Initializi
             }
             PositionSearchVO vo;
             try {
-                vo = copyProperties(dataMap, PositionSearchVO.class);
+                vo = ObjCopyUtils.copyProperties(dataMap, PositionSearchVO.class, true);
             } catch (IllegalAccessException | InstantiationException e) {
-                log.error("Map数据拷贝至POJO异常，e={}", ThrowableUtils.getStackTrace(e));
+                log.error("反射创建对象异常，e={}", ThrowableUtils.getStackTrace(e));
                 continue;
             }
             positionSearchService.insert(vo);
             log.info("增量数据{}推送ES成功。", vo.toSimpleString());
         }
-    }
-
-    private PositionSearchVO copyProperties(Map<String, Object> sourceMap, Class<PositionSearchVO> targetClazz) throws InstantiationException, IllegalAccessException {
-        List<Field> fieldList = new ArrayList<>();
-        for (Class tempClass = targetClazz; Objects.nonNull(tempClass) && PositionInfo.class.isAssignableFrom(tempClass);
-             tempClass = tempClass.getSuperclass()) {
-            fieldList.addAll(Arrays.asList(tempClass.getDeclaredFields()));
-        }
-        PositionSearchVO vo = targetClazz.newInstance();
-        for (Field field : fieldList) {
-            Object value = sourceMap.get(field.getName());
-            if (Objects.nonNull(value)) {
-                field.setAccessible(true);
-                field.set(vo, value);
-            }
-        }
-        return vo;
     }
 
     @Override

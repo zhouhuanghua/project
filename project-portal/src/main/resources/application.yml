@@ -10,8 +10,6 @@ spring:
     elasticsearch:
       cluster-name: docker-cluster
       cluster-nodes: thunderclap.cn:9300
-      repositories:
-        enabled: true
 
 binlog:
   host: thunderclap.cn

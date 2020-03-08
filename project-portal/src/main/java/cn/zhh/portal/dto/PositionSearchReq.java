@@ -10,9 +10,9 @@ import lombok.Data;
 @Data
 public class PositionSearchReq extends PageReq {
 
+    private Integer cityCode;
+
     private Integer kwType;
 
     private String content;
-
-    private Integer cityCode;
 }

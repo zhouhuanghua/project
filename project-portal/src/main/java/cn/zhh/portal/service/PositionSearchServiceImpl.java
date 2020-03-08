@@ -59,10 +59,15 @@ public class PositionSearchServiceImpl implements IPositionSearchService {
             }
         });
         // 分页
-        PageRequest pageRequest = PageRequest.of(positionSearchReq.getPageNo() - 1, positionSearchReq.getPageSize(),
+        PageRequest pageRequest = PageRequest.of(positionSearchReq.getPageNo(), positionSearchReq.getPageSize(),
                 Sort.by(Sort.Order.desc("publishTime")));
 
         // 查询
         return repository.search(boolQueryBuilder, pageRequest);
+    }
+
+    @Override
+    public Optional<PositionSearchVO> getById(Long id) {
+        return repository.findById(id);
     }
 }
