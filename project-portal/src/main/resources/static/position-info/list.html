@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>职位列表</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="../lib/vue/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+
+    <h3>职位列表</h3>
+
+    <div class="input-group mb-3">
+        <span style="font-size: x-large">城市：</span>
+        <select class="form-control" id="city" v-model="req.city">
+            <option value="0">全国</option>
+            <option value="1">北京</option>
+            <option value="2">上海</option>
+            <option value="3">广州</option>
+            <option value="4">深圳</option>
+            <option value="5">杭州</option>
+            <option value="6">成都</option>
+        </select>
+        <span style="font-size: x-large; margin-left: 5%">搜索类型：</span>
+        <select class="form-control"  id="kwType" v-model="req.kwType">
+            <option value="1">职位名称</option>
+            <option value="2">公司名称</option>
+            <option value="3">描述信息</option>
+        </select>
+        <input class="form-control" placeholder="Search content..." v-model="req.content">
+        <div class="input-group-append">
+            <button class="btn btn-success" @click="query(0)">Go</button>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th width="5%">No</th>
+            <th width="20%">职位名称</th>
+            <th width="10%">薪资</th>
+            <th width="10%">工作经验</th>
+            <th width="10%">发布时间</th>
+            <th width="7%">城市</th>
+            <th width="20%">公司名称</th>
+            <th width="10%">公司阶段</th>
+            <th width="8%">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(item, index) of page.content" :key="index">
+            <td hidden>{{item.id}}</td>
+            <td>{{index+1}}</td>
+            <td>{{item.name}}</td>
+            <td>{{item.salary}}</td>
+            <td>{{item.workExp}}</td>
+            <td>{{item.publishTime}}</td>
+            <td>{{item.city}}</td>
+            <td>{{item.companyName}}</td>
+            <td>{{item.companyDevelopmentalStage}}</td>
+            <td>
+                <button type="button" class="btn btn-info" data-toggle="modal" data-placement="bottom"
+                data-target="#logModal" title="查看详细信息" :data-positionid="item.id">
+                    详细信息
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div align="right">
+        共找到<span style="font-size: xx-large">{{page.totalElements}}</span>条记录！
+    </div>
+
+    <ul class="pagination">
+        <li class="page-item"><a class="page-link" @click="query(page.number-1)">上一页</a></li>
+
+        <li class="page-item" v-for="index of page.totalPages" :key="index">
+            <a v-if="index>page.number-2 && index<page.number+5" class="page-link" @click="query(index-1)">{{index}}</a>
+        </li>
+        <li class="page-item"><a class="page-link" @click="query(page.number+1)">下一页</a></li>
+        <span style="font-size: x-large">当前第 <b>{{page.number+1}}</b> 页</span>
+    </ul>
+
+    <!-- 模态框 -->
+    <div class="modal fade" id="logModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <!-- 模态框头部 -->
+                <div class="modal-header">
+                    <h4 class="modal-title">详细信息</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- 模态框主体 -->
+                <div class="modal-body" id="modal_body">
+
+                </div>
+                <!-- 模态框底部 -->
+                <div class="modal-footer">
+                    <!--<button type="button" class="btn btn-primary" id="confirmActiveBtn">提交</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    new Vue({
+        el: ".container",
+        mounted: function () {
+            this.query(0);
+        },
+        data: {
+            page: {
+                number: 0,
+                totalPages: 0,
+                content: [],
+                size: 100,
+                totalElements: 0
+            },
+            req: {
+                city: 0,
+                kwType: 1,
+                content: null
+            }
+        },
+        methods: {
+            query: function (pageNo) {
+                var _this = this;
+                if (pageNo < 0 || (pageNo >= this.page.totalPages && this.page.totalPages != 0)) return;
+                var cityCode = _this.req.city < 1 ? null : _this.req.city;
+                axios.post('/portal/position?time=' + Date.now(), {
+                    pageNo: pageNo,
+                    pageSize: _this.page.size,
+                    cityCode: cityCode,
+                    kwType: _this.req.kwType,
+                    content: _this.req.content
+                })
+                    .then(function (response) {
+                        var data = response.data;
+                        if (data.code == 200) {
+                            _this.page = data.info;
+                        } else {
+                            alert(data.msg);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+        }
+    });
+
+    <!-- 模态框相关开始 -->
+    $(function(){
+        $("#logModal").modal("hide");
+    });
+    $("#logModal").on("show.bs.modal",function(e){
+        var positionId = $(e.relatedTarget).data("positionid");
+        $.get("/portal/position/" + positionId, function (result) {
+            if (result.code != 200) {
+                return;
+            }
+            var data = result.info;
+            var desc = "<br/>";
+            $.each(JSON.parse(data.description), function (index, item) {
+                desc += item + "<br/>";
+            });
+            var content = "职位名称：<b>" + data.name + "</b><br/>"
+                + "薪资：<b>" + data.salary + "</b><br/>"
+                + "城市：<b>" + data.city + "</b><br/>"
+                + "工作经验：<b>" + data.workExp + "</b><br/>"
+                + "学历：<b>" + data.education + "</b><br/>"
+                + "职位亮点：<b>" + data.welfare + "</b><br/>"
+                + "职位描述：<b>" + desc + "</b><br/>"
+                + "职位标签：<b>" + data.label + "</b><br/>"
+                + "工作地点：<b>" + data.salary + "</b><br/>"
+                + "发布时间：<b>" + data.city + "</b><br/>"
+                + "职位链接：<b>" + data.url + "</b><br/>"
+                + "公司名称：<b>" + data.companyName + "</b><br/>"
+                + "公司logo：<img src='" + data.companyLogo + "' width='36px' height='36px'></img><br/>"
+                + "公司发展阶段：<b>" + data.companyDevelopmentalStage + "</b><br/>"
+                + "公司规模：<b>" + data.companyScale + "</b><br/>"
+                + "公司主营：<b>" + data.companyDomain + "</b><br/>"
+                + "公司链接：<b>" + data.companyUrl + "</b><br/>"
+                + "公司描述：<b>" + data.companyIntroduction + "</b><br/>";
+            $("#modal_body").html(content);
+        })
+    });
+    $("#logModal").on("hidden.bs.modal", function (e) {
+        $("#logModal-tBody").html("No Data...");
+    });
+    <!-- 模态框相关结束 -->
+
+</script>
+</body>
+</html>
