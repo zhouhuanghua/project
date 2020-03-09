@@ -32,6 +32,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 解决其它模块依赖此模块mvn时找不到程序包的问题 -->
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
