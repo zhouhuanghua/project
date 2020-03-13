@@ -40,7 +40,7 @@ public class CrawlUrlRunner {
             webDriver.get(CrawlerConsts.LAGOU_BASE_URL);
             selectCity(webDriver, cityEnum);
             searchPosition(webDriver, position);
-            for (int index = 0; index < pageNum; pageNum++) {
+            for (int index = 0; index < pageNum; index++) {
                 List<Document> itemDocumentList = generateItems(Jsoup.parse(webDriver.getPageSource()));
                 for (Document itemDocument : itemDocumentList) {
                     String detailUrl = itemDocument.selectFirst("a[class=position_link]").attr("href");

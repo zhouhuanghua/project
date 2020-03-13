@@ -65,7 +65,7 @@
             <td>{{item.companyDevelopmentalStage}}</td>
             <td>
                 <button type="button" class="btn btn-info" data-toggle="modal" data-placement="bottom"
-                data-target="#logModal" title="查看详细信息" :data-positionid="item.id">
+                data-target="#logModal" title="查看详细信息" @click="positionid(item.id)">
                     详细信息
                 </button>
             </td>
@@ -153,17 +153,21 @@
                     .catch(function (error) {
                         console.log(error);
                     });
+            },
+            positionid: function (id) {
+                positionid = id;
             }
         }
     });
+
+    var positionid = -1;
 
     <!-- 模态框相关开始 -->
     $(function(){
         $("#logModal").modal("hide");
     });
     $("#logModal").on("show.bs.modal",function(e){
-        var positionId = $(e.relatedTarget).data("positionid");
-        $.get("/portal/position/" + positionId, function (result) {
+        $.get("/portal/position/" + positionid + "?time=" + Date.now(), function (result) {
             if (result.code != 200) {
                 return;
             }
@@ -178,11 +182,11 @@
                 + "工作经验：<b>" + data.workExp + "</b><br/>"
                 + "学历：<b>" + data.education + "</b><br/>"
                 + "职位亮点：<b>" + data.welfare + "</b><br/>"
-                + "职位描述：<b>" + desc + "</b><br/>"
+                + "<b>" + desc + "<br/>"
                 + "职位标签：<b>" + data.label + "</b><br/>"
-                + "工作地点：<b>" + data.salary + "</b><br/>"
-                + "发布时间：<b>" + data.city + "</b><br/>"
-                + "职位链接：<b>" + data.url + "</b><br/>"
+                + "工作地点：<b>" + data.workAddress + "</b><br/>"
+                + "发布时间：<b>" + data.publishTime + "</b><br/>"
+                + "职位链接：<b><a href='" + data.url + "' target='_blank'>点击前往</a></b><br/>"
                 + "公司名称：<b>" + data.companyName + "</b><br/>"
                 + "公司logo：<img src='" + data.companyLogo + "' width='36px' height='36px'></img><br/>"
                 + "公司发展阶段：<b>" + data.companyDevelopmentalStage + "</b><br/>"
@@ -194,7 +198,7 @@
         })
     });
     $("#logModal").on("hidden.bs.modal", function (e) {
-        $("#logModal-tBody").html("No Data...");
+        $("#modal_body").html("");
     });
     <!-- 模态框相关结束 -->
 

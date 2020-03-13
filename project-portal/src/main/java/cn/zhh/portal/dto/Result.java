@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * 通用结果返回对象
  *
- * @author z_hh
+ * @author Zhou Huanghua
  */
 @ToString
 public class Result<T> implements Serializable {

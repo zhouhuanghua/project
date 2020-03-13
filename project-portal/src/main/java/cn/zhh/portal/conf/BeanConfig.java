@@ -21,6 +21,4 @@ public class BeanConfig {
                                            @Value("${binlog.password}") String password) {
         return new BinaryLogClient(host, port, schema, username, password);
     }
-
-
 }
