@@ -5,9 +5,9 @@ server:
 spring:
   # DB配置
   datasource:
-    url: jdbc:mysql://thunderclap.cn:3306/project?useUnicode=true&characterEncoding=UTF-8&useSSL=false
-    username: zhh
-    password: 123456
+    url: jdbc:mysql://xxx.com:ooo/project?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: xxxxxx
+    password: oooooo
     hikari:
       connection-test-query: SELECT 1
       minimum-idle: 3
@@ -16,9 +16,9 @@ spring:
       idle-timeout: 30000
   # RabbitMQ配置
   rabbitmq:
-    addresses: thunderclap.cn:5672
-    username: zhh
-    password: 123456
+    addresses: xxxxxx.00:oooooo
+    username: xxxxxx
+    password: oooooo
     virtual-host: /
     connection-timeout: 10_000
     # 消费者配置

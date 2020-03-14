@@ -9,11 +9,11 @@ spring:
     # elasticsearch
     elasticsearch:
       cluster-name: docker-cluster
-      cluster-nodes: thunderclap.cn:9300
+      cluster-nodes: xxxxxx.xx:oooo
 
 binlog:
-  host: thunderclap.cn
+  host: xxxxxxxx.com
   port: 3306
   schema: project
-  username: zhh
-  password: 123456
+  username: xxxxxx
+  password: oooooo

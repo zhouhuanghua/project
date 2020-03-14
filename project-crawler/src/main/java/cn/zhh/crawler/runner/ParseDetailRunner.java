@@ -43,18 +43,21 @@ public class ParseDetailRunner {
 
     private static final Pattern PATTERN3 = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");
 
+    private static final IStrategy[] STRATEGIES = {new JsoupStrategy(), new JBrowserStrategy(), new ChromeStrategy()};
+
     @Autowired
     private MqProducer mqProducer;
 
     public void parseDetail(UrlDTO urlDTO) {
         String url = urlDTO.getUrl();
-        IStrategy[] strategies = {new JsoupStrategy(), new JBrowserStrategy(), new ChromeStrategy()};
         ObjectWrapper<Document> docWrapper = new ObjectWrapper();
-        CrawlStrategyChain.build(strategies).doCrawl(url, docWrapper);
-        if (docWrapper.isNull() && urlDTO.getRetryCount() > 0) {
+        CrawlStrategyChain.build(STRATEGIES).doCrawl(url, docWrapper);
+        if (docWrapper.nonNull()) {
+            parseDetailPage(docWrapper.getObj(), url);
+        }
+        if (urlDTO.getRetryCount() > 0) {
             mqProducer.sendUrl(new UrlDTO(url, urlDTO.getRetryCount() - 1));
         }
-        parseDetailPage(docWrapper.getObj(), url);
     }
 
     private void parseDetailPage(Document document, String url) {
