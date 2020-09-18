@@ -22,7 +22,7 @@ public class BrowserDriverFactory {
 
     static {
         String classesPath = BrowserDriverFactory.class.getClassLoader().getResource("").getPath();
-        System.setProperty("webdriver.chrome.driver", classesPath.substring(1) + "static/chromedriver80.exe");
+        System.setProperty("webdriver.chrome.driver", classesPath.substring(1) + "static/chromedriver85.exe");
         CHROME_OPTIONS.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
     }
     private BrowserDriverFactory() {

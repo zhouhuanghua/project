@@ -18,6 +18,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * MQ消费者
@@ -34,13 +35,19 @@ public class MqConsumer {
     @Autowired
     private Dao dao;
 
+    private Function<String, String> urlToKeyFunc = url -> url.substring(url.lastIndexOf("jobs/") + 5, url.lastIndexOf(".html"));
+
     @RabbitListener(queues = {CrawlerConsts.URL_QUEUE_NAME})
     @RabbitHandler
     public void consumePositionUrl(@Payload String message, @Headers Map<String, Object> headers, Channel channel) throws Exception {
         UrlDTO urlDTO = JsonUtils.fromJson(message, UrlDTO.class);
         log.info("消费职位链接{}", urlDTO.toSimpleString());
-        // 处理消息
-        parseDetailRunner.parseDetail(urlDTO);
+        if (dao.isExists(urlToKeyFunc.apply(urlDTO.getUrl()))) {
+            log.info("职位{}已存在。", urlDTO.getUrl());
+        } else {
+            // 处理消息
+            parseDetailRunner.parseDetail(urlDTO);
+        }
         // 手动签收消息
         Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
         channel.basicAck(deliveryTag, false);

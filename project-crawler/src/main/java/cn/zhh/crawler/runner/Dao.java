@@ -10,6 +10,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,16 +35,22 @@ public class Dao {
             "company_scale, company_domain, company_url, company_introduction, creator" +
             ") values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+    private static final String QUERY_ALL_KEY_SQL = "select unique_key from inf_position where is_deleted = 0";
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @PostConstruct
+    public void loadAllPositionKey() {
+        jdbcTemplate.queryForList(QUERY_ALL_KEY_SQL, String.class).forEach(BLOOM_FILTER::add);
+    }
+
+    public boolean isExists(String uniqueKey) {
+        return BLOOM_FILTER.contains(uniqueKey) && (jdbcTemplate.queryForObject(COUTN_SQL, new Object[]{uniqueKey}, Integer.class) > 0);
+    }
+
     public void insertDb(PositionInfo positionInfo) {
         String uniqueKey = positionInfo.getUniqueKey();
-        if (BLOOM_FILTER.contains(uniqueKey)
-                && (jdbcTemplate.queryForObject(COUTN_SQL, new Object[]{uniqueKey}, Integer.class) > 0)) {
-            log.info("职位{}已存在。", positionInfo.toSimpleString());
-            return;
-        }
         setDefValIfNull(positionInfo);
         Object[] args = {
                 uniqueKey,
